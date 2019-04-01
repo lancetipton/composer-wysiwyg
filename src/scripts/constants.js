@@ -16,6 +16,7 @@ export const CLASSES = {
 }
 export const BTN_ID_EXT = 'composer-button'
 export const PARA_SEP_STR = 'defaultParagraphSeparator'
+export const PARA_SEP_EL = 'div'
 export const EMPTY_INPUT = ''
 export const FORMAT_BLOCK = 'formatBlock'
 export const STYLE_ID = 'composer-stylesheet-rules'

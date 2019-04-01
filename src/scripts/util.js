@@ -1,9 +1,6 @@
-import { defaultTools } from './tools'
-import Styles from './style_loader'
-import { getStyles } from './styles'
-import { STYLE_ID } from './constants'
-
 export const appendChild = (parent, child) => parent.appendChild(child)
+
+export const prependChild = (parent, child) => parent.prepend(child)
 
 export const createElement = tag => document.createElement(tag)
 

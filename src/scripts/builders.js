@@ -1,12 +1,32 @@
 import { defaultTools } from './tools'
 import Styles from './style_loader'
 import { getStyles } from './styles'
-import { STYLE_ID } from './constants'
 import {
+  addEventListener,
   appendChild,
   createElement,
+  debounce,
+  getMutationObserver,
+  prependChild,
 } from './util'
+import {
+  CLASSES,
+  EMPTY_INPUT,
+  STYLE_ID,
+  PARA_SEP_EL,
+  PARA_SEP_STR,
+  TOOLS_OFFSET,
+} from './constants'
 
+
+export const buildSettings = opts => ({
+  ...opts,
+  Editor: { ...buildEditor() },
+  classes: { ...CLASSES, ...opts.classes },
+  defParaSep: opts[PARA_SEP_STR] || PARA_SEP_EL,
+  toolOffset: { ...TOOLS_OFFSET, ...opts.toolOffset },
+  isStatic: opts.type === 'static',
+})
 
 /**
  * Builds the Dom Node for the tool bar
@@ -34,21 +54,20 @@ export const buildRoot = (settings, toolbar, contentActs) => {
   Array.isArray(contentActs) &&
     contentActs.map(contentAct => appendChild(wrapper, contentAct))
   // Add the toolbar actions
-  settings.type === 'static'
-    ? wrapper.prepend(toolbar)
+  settings.isStatic
+    ? prependChild(wrapper, toolbar)
     : appendChild(wrapper, toolbar)
 
   const rootEl = createElement('div')
   rootEl.className = settings.classes.ROOT
   appendChild(rootEl, wrapper)
 
-  if (settings.type !== 'static'){
-    appendChild(document.body, rootEl)
-    return rootEl
+  if (!settings.isStatic) appendChild(document.body, rootEl)
+  else {
+    rootEl.classList.add(settings.type)
+    prependChild(settings.element, rootEl)
   }
 
-  rootEl.classList.add(settings.type)
-  settings.element.prepend(rootEl)
   return rootEl
 }
 
@@ -79,11 +98,7 @@ export const buildTools = settings => {
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { void }
  */
-export const buildStyles = (settings) => {
-  const styleObj = getStyles(settings)
-  const styleStr = Styles.build(styleObj)
-  Styles.set(STYLE_ID, styleStr)
-}
+export const buildStyles = (settings) => (Styles.add(STYLE_ID, getStyles(settings)))
 
 
 /**
@@ -132,19 +147,48 @@ export const buildContentActions = settings => {
   return contentActs
 }
 
-export const buildPopperOpts = (settings, cb) => ({
-  removeOnDestroy: true,
-  placement: 'bottom-start',
-  onCreate: cb(settings),
-  ...settings.popper,
-  modifiers: {
-    offset: { offset: 5 },
-    keepTogether: { enabled: true },
-    preventOverflow: {
-      enabled: true,
-      padding: 10,
-      escapeWithReference: false,
-    },
-    ...(settings.popper && settings.popper.modifiers || {})
+export const buildEditor = () => ({
+  contentEl: undefined,
+  end: undefined,
+  onSelChange: undefined,
+  composition: {
+    start: () => {},
   },
+  toolsVisible: undefined,
+  onKeyDown: undefined,
+  onClick: undefined,
+  popper: undefined,
+  mutObs: undefined,
 })
+
+/**
+ * Builds content dom node with contentEditable for editing its content
+ * Adds event listeners to capture 'Enter' and 'Tab' keyboard events
+ * @param  { object } settings - props that define how WYSIWYG editor functions
+ * @return { dom node } - build dom node that holds the editable content
+ */
+export const buildContent = (settings, onContentChange, onKeyDown) => {
+  const { Editor, isStatic, element, classes, placeholder } = settings
+  const content = !isStatic && element || createElement('div')
+  content.innerHTML = settings.content || EMPTY_INPUT
+  content.contentEditable = true
+  content.classList.add(classes.CONTENT)
+  Editor.mutObs = getMutationObserver(
+    content,
+    debounce(onContentChange(content, settings))
+  )
+
+  if (placeholder && !content.innerHTML)
+    content.dataset.placeholder = placeholder
+
+  Editor.onKeyDown = onKeyDown(settings)
+  addEventListener(content, 'keydown', Editor.onKeyDown)
+
+  if (isStatic){
+    content.style.width = `${element.clientWidth}px`
+    content.style.height = `${element.clientHeight - 24}px`
+    appendChild(element, content)
+  }
+
+  return content
+}

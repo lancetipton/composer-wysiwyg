@@ -1,6 +1,11 @@
 import Properties from './properties'
-const sheetCache = {}
+let sheetCache = {}
 
+/**
+ * Gets or creates a style dom node
+ * @param  { string } id - id of the cached style
+ * @return { dom node } - the found or created style dom node
+ */
 const get = id => {
   if (sheetCache[id]) return sheetCache[id]
   const newSheet = document.createElement('style')
@@ -10,12 +15,23 @@ const get = id => {
   return sheetCache[id]
 }
 
+/**
+ * Gets the dom style node and sets its content to be the passed in value
+ * @param  { string } id - id of the cached style
+ * @param  { string } styleStr - contents to update the style with
+ * @return { void }
+ */
 const set = (id, styleStr) => {
   const styleEl = get(id)
   if (styleEl.styleSheet) styleEl.styleSheet.cssText = styleStr
   else styleEl.innerHTML = styleStr
 }
 
+/**
+ * Removes style cache item from cache and dom
+ * @param  { string } id - id of the cached style
+ * @return { void }
+ */
 const remove = id => {
   try {
     sheetCache[id] && document.head.removeChild(sheetCache[id])
@@ -26,7 +42,18 @@ const remove = id => {
   sheetCache[id] = undefined
 }
 
-const destroy = () => Object.keys(sheetCache).map(remove)
+/**
+ * Removes all styles nodes from cache and dom
+ * @return {void}
+ */
+const destroy = () => (
+  sheetCache = Object
+    .keys(sheetCache)
+    .reduce((cache, key) => {
+      remove(key)
+      return cache
+    }, {})
+)
 
 /**
  * Deep merges an array of objects together
@@ -61,9 +88,9 @@ const deepMerge = (...sources) => sources.reduce(
 )
 
 /**
- *
- * @param  {any} selector
- * @param  {any} rls
+ * Converts a block of JS CSS into CSS string
+ * @param  { string } selector - CSS selector for the rules
+ * @param  { object } rls - CSS rules to be converted into a string
  * @return
  */
 const createBlock = (selector, rls) => {
@@ -84,9 +111,9 @@ const createBlock = (selector, rls) => {
 }
 
 /**
- *
- * @param  {any} rule
- * @return {void}
+ * Converts JS CSS rule into CSS string
+ * @param  { object } rule - style as JS CSS
+ * @return { string } rule convert into CSS string
  */
 const createRules = (rule) => Object
   .entries(rule)
@@ -102,8 +129,8 @@ const createRules = (rule) => Object
 
 /**
  *
- * @param  { array of objects } rules -
- * @return {void}
+ * @param  { array of objects } rules - array of object styles to add convert into string
+ * @return { string } styles objects converted into string as formatted css styles
  */
 const build = (...rules) => Object
   .entries(deepMerge(...rules))
@@ -111,8 +138,16 @@ const build = (...rules) => Object
     styles + createBlock(selector, rls)
   ), '')
 
+/**
+ * Builds and sets the styles object to the document
+ * @param  { string } id - id for the style tag dom node
+ * @param  { object } styleObj - hold styles to be added to dom as JS style css
+ * @return { void }
+ */
+const add = (id, styleObj) => set(id, build(styleObj))
 
 export default {
+  add,
   build,
   destroy,
   remove,

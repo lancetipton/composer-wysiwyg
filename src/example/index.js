@@ -1,5 +1,3 @@
-let Editor
-
 const onChange = (html) => {
   // console.log('------------------on change------------------')
   // console.log(html)
@@ -48,25 +46,27 @@ const buildPopEditor = () => {
   popOpts.element = popEditor
   popOpts.content = popEditor.innerHTML
   const popComp = window.composer.init(popOpts)
-
-  // console.log(popComp)
-}
-const init = () => {
-  buildPopEditor()
-  buildStaticEditor()
+  return popComp
 }
 
 const buildStaticEditor = () => {
   const staticEditor =  document.getElementById('editor-static')
   if (!staticEditor) return console.warn('Can not find dom node with id "#editor-static"')
   const staticOpts = Object.assign({}, options)
+  staticOpts.onCancel = undefined
+  staticOpts.onSave = undefined
   staticOpts.element = staticEditor
   staticOpts.content = staticEditor.innerHTML
   staticOpts.type = 'static'
   const staticComp = window.composer.init(staticOpts)
-
-  // console.log(staticComp)
+  return staticComp
 }
+
+const init = () => {
+  const popComp = buildPopEditor()
+  const staticComp = buildStaticEditor()
+}
+
 
 init()
 
