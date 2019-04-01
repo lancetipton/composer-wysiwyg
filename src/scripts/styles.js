@@ -1,0 +1,245 @@
+import { CLASSES } from './constants'
+
+const defaultStyles = {
+  colors: {
+    gray: '#bfbec3',
+    white: '#ffffff',
+    ebonyBlack: '#242a35',
+    green: '#4caf50',
+    red: '#fa0719',
+    blue: '#03a9f4'
+  },
+  fonts: {
+    raleway: `"Raleway", sans-serif`
+  },
+  speeds: {
+    showTools: '0.75s ease-in-out'
+  }
+}
+
+export const updateDefaultStyles = styleProps => {
+  if (typeof styleProps !== 'object' || Array.isArray(styleProps))
+    return console.warn(`Updating default styles requires a styles object argument`)
+
+  if (styleProps.colors)
+    defaultStyles.colors = {
+      ...defaultStyles.colors,
+      ...styleProps.colors
+    }
+  if (styleProps.colors)
+    defaultStyles.fonts = {
+      ...defaultStyles.fonts,
+      ...styleProps.fonts
+    }
+  if (styleProps.colors)
+    defaultStyles.speeds = {
+      ...defaultStyles.speeds,
+      ...styleProps.speeds
+    }
+
+  return defaultStyles
+}
+
+export const getStyles = settings => {
+  const useCls = { ...CLASSES, ...(settings.classes || {}) }
+  const { colors, speeds, fonts } = defaultStyles
+  const rules = settings.rules || {}
+  rules.static = rules.static || {}
+
+  return {
+    ...(rules || {}),
+    [`.${useCls.ROOT}`]: {
+      position: 'absolute',
+      display: 'inline-block',
+      opacity: 0,
+      transition: `opacity ${speeds.showTools}`,
+      visibility: 'hidden',
+      ...rules.root,
+      //----- WYSIWYG WRAPPER ----- //
+      [`.${useCls.WRAPPER}`]: {
+        ...rules.wrapper,
+
+        //----- TOOL BAR ----- //
+        [`.${useCls.TOOL_BAR}`]: {
+          borderRadius: '20px',
+          backgroundColor: colors.ebonyBlack,
+          boxShadow: '2px 2px 8px rgba(0,0,0,0.2)',
+          ...rules.toolBar,
+
+          //----- BTN GROUP ----- //
+          [`.${useCls.BTN_GRP}`]: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '4px',
+            ...rules.btnGrp,
+
+            [`.${useCls.BTN_WRAP}`]: {
+              position: 'relative',
+              border: '1px solid transparent',
+              borderLeft: `1px solid ${colors.gray}`,
+              display: 'flex',
+              ...rules.btnList,
+
+              [`.${useCls.BTN_TOOL}`]: {
+                border: 'none',
+                ...rules.btnWrp,
+              },
+              [`.${useCls.BTN_TOOL}:first-of-type`]: {
+                border: 'none',
+                ...rules.btnFirstWrp,
+              },
+              [`.${useCls.BTN_DROP_LIST}`]: {
+                position: 'absolute',
+                listStyleType: 'none',
+                margin: 0,
+                padding: 0,
+                backgroundColor: colors.ebonyBlack,
+                visibility: 'hidden',
+                top: 19,
+                width: '100%',
+                textAlign: 'center',
+                boxShadow: '2px 2px 8px rgba(0,0,0,0.2)',
+                ...rules.dropList,
+                [`li`]: {
+                  borderTop: `1px solid ${colors.gray}`,
+                  paddingTop: `4px`,
+                  paddingBottom: `4px`,
+                  fontSize: `10px`,
+                  display: 'inline-block',
+                  ...rules.dropListItem,
+                }
+              }
+            },
+
+            [`.${useCls.BTN_WRAP}.${CLASSES.SHOW}`]: {
+
+              [`.${useCls.BTN_DROP_LIST}`]: {
+                visibility: 'visible',
+                ...rules.dropListOpen,
+              },
+            },
+
+            //----- BTN Tools ----- //
+            [`.${useCls.BTN_TOOL}`]: {
+              borderRadius: '0',
+              margin: '0',
+              cursor: 'pointer',
+              position: 'relative',
+              flex: '0 1 auto',
+              display: 'inline-block',
+              textAlign: 'center',
+              border: '1px solid transparent',
+              borderLeft: `1px solid ${colors.gray}`,
+              padding: '0 10px',
+              color: colors.gray,
+              fontSize: '12px',
+              textDecoration: 'none',
+              // height: '14px',
+              // width: '12px',
+              ...rules.btn,
+            },
+            [`.${useCls.BTN_TOOL}:first-of-type`]: {
+              borderLeft: '1px solid transparent',
+              ...rules.btnFirst,
+            },
+            [`.${useCls.BTN_TOOL}:hover`]: {
+              color: colors.white,
+              ...rules.btnHover,
+            },
+            [`.${useCls.BTN_SELECTED}`]: {
+              color: colors.blue,
+              ...rules.btnSelected,
+            },
+
+          },
+
+        },
+
+        //----- BTN CONTENT ----- //
+        [`button.${useCls.BTN_CONTENT}`]: {
+          position: 'absolute',
+          width: 'auto',
+          height: 'auto',
+          fontSize: '14px',
+          transition: 'all 0.5s ease',
+          top: '30px',
+          color: colors.gray,
+          border: 'none',
+          padding: '5px',
+          paddingRight: '10px',
+          boxShadow: '2px 2px 8px rgba(0,0,0,0.2)',
+          backgroundColor: colors.ebonyBlack,
+          borderRadius: '20px',
+          cursor: 'pointer',
+          ...rules.contentBtn,
+        },
+        [`button.${useCls.BTN_CONTENT}:hover`]: {
+          ...rules.contentBtnHover,
+        },
+        [`button.${useCls.BTN_CONTENT} > span`]: {
+          marginLeft: '4px',
+          position: 'relative',
+          top: '-2px',
+          fontFamily: fonts.raleway,
+          fontSize: '12px',
+          ...rules.contentBtnText,
+        },
+
+        //----- BTN SAVE ----- //
+        [`button.${useCls.BTN_SAVE}`]: {
+          right: '75px',
+          ...rules.saveBtn,
+        },
+        [`button.${useCls.BTN_SAVE}:hover`]: {
+          color: colors.ebonyBlack,
+          backgroundColor: colors.green,
+          ...rules.saveBtnHover,
+        },
+
+        //----- BTN CANCEL ----- //
+        [`button.${useCls.BTN_CANCEL}`]: {
+          right: '0px',
+          ...rules.cancelBtn,
+        },
+        [`button.${useCls.BTN_CANCEL}:hover`]: {
+          color: colors.ebonyBlack,
+          backgroundColor: colors.red,
+          ...rules.cancelBtnHover,
+        }
+      },
+    },
+    [`.${useCls.ROOT}.${CLASSES.SHOW}`]: {
+      opacity: 1,
+      visibility: 'visible',
+    },
+    [`.${useCls.ROOT}.${CLASSES.HIDDEN}`]: {
+      opacity: 0,
+      visibility: 'visible',
+    },
+    [`.${useCls.ROOT}.static`]: {
+      position: 'relative',
+      display: 'flex',
+      justifyContent: 'center',
+      opacity: 1,
+      transition: `opacity ${speeds.showTools}`,
+      visibility: 'visible',
+      backgroundColor: colors.ebonyBlack,
+      ...rules.static.root,
+      [`.${useCls.WRAPPER}`]: {
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        ...rules.static.wrapper,
+
+        [`button.${useCls.BTN_CONTENT}`]: {
+          position: 'initial',
+          top: 'initial',
+          border: 'initial',
+          boxShadow: 'initial',
+          borderRadius: 'initial',
+          ...rules.static.contentBtn,
+        },
+      }
+    }
+  }
+
+}

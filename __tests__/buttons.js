@@ -1,0 +1,1 @@
+const Buttons = require('../buttons')

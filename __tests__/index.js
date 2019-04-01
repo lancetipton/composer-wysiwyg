@@ -1,0 +1,1 @@
+const Composer = require('../index')
