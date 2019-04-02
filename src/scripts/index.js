@@ -11,7 +11,6 @@ import {
 import {
   addEventListener,
   exec,
-  queryCommandValue,
   noContent,
   checkListDisable,
 } from './util'
@@ -28,7 +27,10 @@ import {
 
 const onClickEditor = settings => {
   return e => {
-    typeof settings.onEditorClick === 'function' && settings.onEditorClick(e, settings)
+    const { isStatic, config, Editor } = settings
+    if (!isStatic && config.editor.showOnClick && !Editor.toolsVisible)
+      toggleTools('on', settings)
+    typeof config.editor.onClick === 'function' && config.editor.onClick(e, settings)
   }
 }
 
@@ -42,7 +44,7 @@ const onClickEditor = settings => {
  */
 const onContentChange = (content, settings) => {
   return (observer) => {
-    const { Editor, defParaSep, onChange, } = settings
+    const { Editor, onChange, config } = settings
     if (!Editor || !observer || !observer[0]) return null
 
     const el = observer[0].target
@@ -50,7 +52,7 @@ const onContentChange = (content, settings) => {
     // Clean up the the element content if needed
     firstChild &&
       firstChild.nodeType === 3
-      && exec(FORMAT_BLOCK, `<${defParaSep}>`)
+      && exec(FORMAT_BLOCK, `<${config.defParaSep}>`)
 
     // Check if the actions should be disabled
 
@@ -72,7 +74,7 @@ const onContentChange = (content, settings) => {
  * @return { void }
  */
 const setupEditor = (settings, contentEl, buttons) => {
-  const { Editor, styleWithCSS, defParaSep } = settings
+  const { Editor, config } = settings
   Editor.onSelChange = onSelChange(settings)
   Editor.contentEl = contentEl
   Editor.buttons = buttons
@@ -84,8 +86,8 @@ const setupEditor = (settings, contentEl, buttons) => {
   addEventListener(Editor.contentEl, 'compositionstart', Editor.composition.start)
   addEventListener(Editor.contentEl, 'compositionend', Editor.composition.end)
 
-  styleWithCSS && exec('styleWithCSS')
-  exec(PARA_SEP_STR, defParaSep)
+  config.styleWithCSS && exec('styleWithCSS')
+  exec(PARA_SEP_STR, config.defParaSep)
 }
 
 /**
@@ -96,8 +98,13 @@ const setupEditor = (settings, contentEl, buttons) => {
 const onKeyDown = settings => {
   const handelKeys = { Backspace: true, Tab: true, Enter: true }
   return event => {
-    const { Editor, classes, defParaSep, isStatic } = settings
+    console.log('------------------key down------------------')
+
+    const { Editor, classes, isStatic, config } = settings
     Editor.buttons.clearDropdown(null, classes)
+
+    typeof config.editor.onKeyDown === 'function' &&
+      config.editor.onKeyDown(e, settings)
 
     if (
       !Editor.contentEl ||
@@ -108,10 +115,10 @@ const onKeyDown = settings => {
 
     switch (event.key){
       case 'Tab': return event.preventDefault()
-      case 'Enter': return (
-        queryCommandValue(FORMAT_BLOCK) === 'blockquote' &&
-        setTimeout(() => exec(FORMAT_BLOCK, `<${defParaSep}>`), 0)
-      )
+      case 'Enter': {
+        exec(PARA_SEP_STR, `<${config.defParaSep}>`)
+        return setTimeout(() => (updateToolsPos(settings)), 0)
+      }
       case 'Backspace': {
         !isStatic && updateToolsPos(settings)
         const selection = getSelection()
@@ -138,7 +145,7 @@ const onKeyDown = settings => {
  */
 const onSelChange = settings => {
   return e => {
-    const { Editor, isStatic } = settings
+    const { Editor, isStatic, config } = settings
     if (isStatic) return null
     const selection = getSelection()
     const findNode = selection.anchorNode.nodeType === 3
@@ -148,7 +155,12 @@ const onSelChange = settings => {
     if (findNode.closest(`[contenteditable="true"]`) !== Editor.contentEl)
       return Editor.toolsVisible && toggleTools('off', settings)
 
-    updateToolsPos(settings, selection)
+    typeof config.editor.onSelect === 'function' &&
+      config.editor.onSelect(e, settings)
+
+    // This is causing tools to show up when first clicking on editor
+    !Editor.toolsVisible && updateToolsPos(settings, selection)
+
     // Check if anything was selected
     // if anchorOffset and focusOffset are 0, then nothing was selected, so return
     if (!selection || (!selection.anchorOffset && !selection.focusOffset))
@@ -161,19 +173,22 @@ const onSelChange = settings => {
 
 /**
  * Updates the pos of the editor tools
- * @param  {any} toolOffset
- * @return
+ * @param { object } settings - props that define how WYSIWYG editor functions
+ * @param { object } selection - dom selection object
+ * @param { object } selPos - new pos for the tools
+ * @return { void }
  */
 const updateToolsPos = (settings, selection, selPos) => {
-  const { Editor, toolOffset, isStatic } = settings
+  const { Editor, config, isStatic } = settings
   if (isStatic) return null
 
   selPos = selPos || getSelectionCoords(selection)
   if (!selPos) return null
+  const offset = config.tools.offset
 
   Editor.caretPos = {
-    x: selPos.x + toolOffset.x || 0,
-    y: selPos.y + toolOffset.y || 0
+    x: selPos.x + offset.x || 0,
+    y: selPos.y + offset.y || 0
   }
   Editor.popper &&
     Editor.popper.scheduleUpdate &&
@@ -204,12 +219,12 @@ const toggleTools = (toggle, settings) => {
     toolsRoot.classList.remove(CLASSES.SHOW)
     toolsRoot.classList.add(CLASSES.HIDDEN)
     Editor.toolsVisible = false
+    return
   }
-  else {
-    toolsRoot.classList.add(CLASSES.SHOW)
-    toolsRoot.classList.remove(CLASSES.HIDDEN)
-    Editor.toolsVisible = true
-  }
+
+  toolsRoot.classList.add(CLASSES.SHOW)
+  toolsRoot.classList.remove(CLASSES.HIDDEN)
+  Editor.toolsVisible = true
 }
 
 

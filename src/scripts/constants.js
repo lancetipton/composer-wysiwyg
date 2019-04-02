@@ -16,12 +16,23 @@ export const CLASSES = {
 }
 export const BTN_ID_EXT = 'composer-button'
 export const PARA_SEP_STR = 'defaultParagraphSeparator'
-export const PARA_SEP_EL = 'div'
 export const EMPTY_INPUT = ''
 export const FORMAT_BLOCK = 'formatBlock'
 export const STYLE_ID = 'composer-stylesheet-rules'
 
-export const TOOLS_OFFSET = {
-  x: 0,
-  y: 35
+export const DEF_CONFIG = {
+  iconType: 'far',
+  defaultParagraphSeparator: 'div',
+  classes: { ...CLASSES },
+  styles: {
+    pop: {},
+    static: {},
+  },
+  editor: {},
+  tools: {
+    offset: {
+      x: 0,
+      y: 35
+    }
+  },
 }

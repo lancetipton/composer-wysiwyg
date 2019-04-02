@@ -12,12 +12,9 @@ const onCancel = () => {
 }
 
 const options = {
-  // styleWithCSS: true,
   onChange: onChange,
   onSave: onSave,
   onCancel: onCancel,
-  popper: {},
-  textIcons: true,
   tools: [
     'redo',
     'undo',
@@ -37,6 +34,17 @@ const options = {
     'link',
     'image'
   ],
+  config: {
+    editor: {
+      // Only works when the editor is empty, otherwise editor always shows
+      // See line 161 of index
+      showOnClick: false,
+    },
+    iconType: 'fas',
+    styleWithCSS: true,
+    styles: {},
+    popper: {},
+  }
 }
 
 const buildPopEditor = () => {

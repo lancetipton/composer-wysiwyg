@@ -13,9 +13,7 @@ import {
   CLASSES,
   EMPTY_INPUT,
   STYLE_ID,
-  PARA_SEP_EL,
-  PARA_SEP_STR,
-  TOOLS_OFFSET,
+  DEF_CONFIG,
 } from './constants'
 
 
@@ -23,9 +21,8 @@ export const buildSettings = opts => ({
   ...opts,
   Editor: { ...buildEditor() },
   classes: { ...CLASSES, ...opts.classes },
-  defParaSep: opts[PARA_SEP_STR] || PARA_SEP_EL,
-  toolOffset: { ...TOOLS_OFFSET, ...opts.toolOffset },
   isStatic: opts.type === 'static',
+  config: buildConfig(opts.config)
 })
 
 /**
@@ -77,7 +74,7 @@ export const buildRoot = (settings, toolbar, contentActs) => {
  * @return { array } - joined default and passed in tools
  */
 export const buildTools = settings => {
-  const defTools = defaultTools(settings.iconType)
+  const defTools = defaultTools(settings.config.iconType)
   return settings.tools
     ? (settings
       .tools
@@ -191,4 +188,34 @@ export const buildContent = (settings, onContentChange, onKeyDown) => {
   }
 
   return content
+}
+
+
+const buildConfig = (config = {}) => {
+  const styles = config.styles || {}
+  return {
+    ...DEF_CONFIG,
+    ...config,
+    tools: {
+      ...DEF_CONFIG.tools,
+      ...(config.tools || {})
+    },
+    editor: {
+      ...DEF_CONFIG.editor,
+      ...(config.editor || {})
+    },
+    styles: {
+      ...DEF_CONFIG.styles,
+      ...styles,
+      pop: {
+        ...DEF_CONFIG.styles.pop,
+        ...(styles.pop || {}),
+      },
+      static: {
+        ...DEF_CONFIG.styles.static,
+        ...(styles.static || {}),
+      }
+    }
+  }
+
 }

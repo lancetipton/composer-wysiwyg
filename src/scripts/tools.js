@@ -10,8 +10,7 @@ const buildIcon = (type, text) => {
   return `<span class="btn-icon ${type}">${text || ''}</span>`
 }
 
-export const defaultTools = iconType => {
-  const faType = iconType || 'fas'
+export const defaultTools = faType => {
   return {
     redo: {
       icon: buildIcon(`${faType} fa-redo`),

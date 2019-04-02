@@ -36,12 +36,11 @@ export const getSelectionCoords = selection => {
 
   const range  = selection.getRangeAt && selection.getRangeAt(0)
   if ((!range || !range.getClientRects) && !selection.rangeCount) return null
-
   const rects = range.getClientRects()
+
   return rects.length > 0
     ? { x: rects[0].left, y: rects[0].top }
-    : null
-
+    : selection.anchorNode && selection.anchorNode.getBoundingClientRect()
 }
 
 
