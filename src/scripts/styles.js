@@ -14,7 +14,8 @@ const defaultStyles = {
   },
   speeds: {
     showTools: '0.75s ease-in-out'
-  }
+  },
+  shadow: '2px 2px 8px rgba(0,0,0,0.2)'
 }
 
 export const updateDefaultStyles = styleProps => {
@@ -42,7 +43,7 @@ export const updateDefaultStyles = styleProps => {
 
 export const getStyles = settings => {
   const useCls = { ...CLASSES, ...(settings.config.classes || {}) }
-  const { colors, speeds, fonts } = defaultStyles
+  const { colors, speeds, fonts, shadow } = defaultStyles
   const popRules = settings.config.styles.pop || {}
   const staticRules = settings.config.styles.static || {}
 
@@ -63,7 +64,7 @@ export const getStyles = settings => {
         [`.${useCls.TOOL_BAR}`]: {
           borderRadius: '20px',
           backgroundColor: colors.ebonyBlack,
-          boxShadow: '2px 2px 8px rgba(0,0,0,0.2)',
+          boxShadow: shadow,
           ...popRules.toolBar,
 
           //----- BTN GROUP ----- //
@@ -98,7 +99,7 @@ export const getStyles = settings => {
                 top: 19,
                 width: '100%',
                 textAlign: 'center',
-                boxShadow: '2px 2px 8px rgba(0,0,0,0.2)',
+                boxShadow: shadow,
                 ...popRules.dropList,
                 [`li`]: {
                   borderTop: `1px solid ${colors.gray}`,
@@ -134,8 +135,6 @@ export const getStyles = settings => {
               color: colors.gray,
               fontSize: '12px',
               textDecoration: 'none',
-              // height: '14px',
-              // width: '12px',
               ...popRules.btn,
             },
             [`.${useCls.BTN_TOOL}:first-of-type`]: {
@@ -167,7 +166,7 @@ export const getStyles = settings => {
           border: 'none',
           padding: '5px',
           paddingRight: '10px',
-          boxShadow: '2px 2px 8px rgba(0,0,0,0.2)',
+          boxShadow: shadow,
           backgroundColor: colors.ebonyBlack,
           borderRadius: '20px',
           cursor: 'pointer',

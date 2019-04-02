@@ -98,8 +98,6 @@ const setupEditor = (settings, contentEl, buttons) => {
 const onKeyDown = settings => {
   const handelKeys = { Backspace: true, Tab: true, Enter: true }
   return event => {
-    console.log('------------------key down------------------')
-
     const { Editor, classes, isStatic, config } = settings
     Editor.buttons.clearDropdown(null, classes)
 
@@ -268,4 +266,9 @@ export const destroy = (settings) => {
 }
 
 
-export default { destroy, exec, init }
+export default {
+  destroy,
+  exec,
+  init,
+  updateDefaultStyles: Styles.updateDefaultStyles,
+}
