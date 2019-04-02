@@ -10,6 +10,18 @@ export const getSelection = () =>
       : null
 
 /**
+ * Gets the selected text content
+ * @param  { object } selection - dom api selection || range object { IE }
+ * @return { string } - selected text
+ */
+export const getSelectedText = selection => {
+  selection = selection || getSelection()
+  return window.getSelection
+    ? selection && selection.toString()
+    : selection && selection.text
+}
+
+/**
  * Gets the x / y document pos of the caret based on the current selection
  * @return { object } - x / y pos of the caret
  */

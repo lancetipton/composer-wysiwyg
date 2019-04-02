@@ -1,8 +1,8 @@
-import { getSelectionCoords } from './selection'
 import Buttons from './buttons'
 import Styles from './style_loader'
 import buildPopper from './popper'
 import CleanEditor from './clean_editor'
+import { getSelectionCoords, getSelectedText } from './selection'
 import {
   CLASSES,
   PARA_SEP_STR,
@@ -43,8 +43,8 @@ const onClickEditor = settings => {
 const onContentChange = (content, settings) => {
   return (observer) => {
     const { Editor, defParaSep, onChange, } = settings
-
     if (!Editor || !observer || !observer[0]) return null
+
     const el = observer[0].target
     const firstChild = el.firstChild
     // Clean up the the element content if needed
@@ -114,14 +114,15 @@ const onKeyDown = settings => {
       )
       case 'Backspace': {
         !isStatic && updateToolsPos(settings)
-        const el = event.target
-        // Check if more then one child, if there is then return normal
-        if (el.childElementCount > 1) return null
-
-        // Check if no content in the element
-        if (!el.firstChild || noContent(el) || noContent(el.firstChild)){
+        const selection = getSelection()
+        const selectedText  = getSelectedText(selection)
+        if (
+          selection.isCollapsed &&
+          !selection.anchorOffset &&
+          !selectedText.length &&
+          noContent(Editor.contentEl)
+        ){
           // If no el content, reset it, and return
-          !isStatic && updateToolsPos(settings)
           return event.preventDefault()
         }
       }
@@ -139,8 +140,14 @@ const onSelChange = settings => {
   return e => {
     const { Editor, isStatic } = settings
     if (isStatic) return null
-
     const selection = getSelection()
+    const findNode = selection.anchorNode.nodeType === 3
+      ? selection.anchorNode.parentNode
+      : selection.anchorNode
+
+    if (findNode.closest(`[contenteditable="true"]`) !== Editor.contentEl)
+      return Editor.toolsVisible && toggleTools('off', settings)
+
     updateToolsPos(settings, selection)
     // Check if anything was selected
     // if anchorOffset and focusOffset are 0, then nothing was selected, so return

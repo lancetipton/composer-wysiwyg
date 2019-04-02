@@ -48,7 +48,13 @@ export const debounce = (func, wait = 250, immediate = false) => {
   }
 }
 
-export const noContent = el => Boolean(!el || !el.innerHTML || el.innerHTML === '<br>')
+export const noContent = el => Boolean(!el || (
+  el.nodeType === 3 && !el.length || (
+    el.nodeType !== 3 && !el.innerHTML ||
+    el.innerHTML === '<br>' ||
+    el.innerHTML === '<div><br></div>'
+  ))
+)
 
 /**
  * Checks the current list state for UL or OL
