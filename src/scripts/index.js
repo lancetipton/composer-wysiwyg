@@ -22,16 +22,19 @@ import {
   buildStyles,
   buildTools,
   buildToolBar,
+  registerTools,
+  updateDefaultStyles,
 } from './builders'
 
 
 const onClickEditor = settings => {
   return e => {
-    const { isStatic, config, Editor } = settings
+    const { isStatic, showOnClick, Editor, onClick } = settings
     Editor.isActive = true
-    if (!isStatic && config.editor.showOnClick && !Editor.toolsVisible)
+    if (!isStatic && showOnClick && !Editor.toolsVisible)
       toggleTools('on', settings)
-    typeof config.editor.onClick === 'function' && config.editor.onClick(e, settings)
+    typeof onClick === 'function'
+      && onClick(e, Editor)
   }
 }
 
@@ -45,7 +48,7 @@ const onClickEditor = settings => {
  */
 const onContentChange = (content, settings) => {
   return (observer) => {
-    const { Editor, onChange, config } = settings
+    const { Editor, defParaSep, onChange } = settings
     if (!Editor || !observer || !observer[0]) return null
 
     const el = observer[0].target
@@ -53,7 +56,7 @@ const onContentChange = (content, settings) => {
     // Clean up the the element content if needed
     firstChild &&
       firstChild.nodeType === 3
-      && exec(FORMAT_BLOCK, `<${config.defParaSep}>`)
+      && exec(FORMAT_BLOCK, `<${defParaSep}>`)
 
     // Check if the actions should be disabled
 
@@ -63,7 +66,8 @@ const onContentChange = (content, settings) => {
     // Check if the tools should be turned on
     if (!Editor.toolsVisible) toggleTools('on', settings)
     // Call the passed in on change handler if it exists
-    onChange && onChange(content.innerHTML, content)
+    typeof onChange === 'function' &&
+      onChange(content.innerHTML, observer, Editor)
   }
 }
 
@@ -75,7 +79,7 @@ const onContentChange = (content, settings) => {
  * @return { void }
  */
 const setupEditor = (settings, contentEl, buttons) => {
-  const { Editor, config } = settings
+  const { Editor, defParaSep, styleWithCSS } = settings
   Editor.onSelChange = onSelChange(settings)
   Editor.contentEl = contentEl
   Editor.buttons = buttons
@@ -87,8 +91,8 @@ const setupEditor = (settings, contentEl, buttons) => {
   addEventListener(Editor.contentEl, 'compositionstart', Editor.composition.start)
   addEventListener(Editor.contentEl, 'compositionend', Editor.composition.end)
 
-  config.styleWithCSS && exec('styleWithCSS')
-  exec(PARA_SEP_STR, config.defParaSep)
+  styleWithCSS && exec('styleWithCSS')
+  exec(PARA_SEP_STR, defParaSep)
 }
 
 /**
@@ -99,11 +103,11 @@ const setupEditor = (settings, contentEl, buttons) => {
 const onKeyDown = settings => {
   const handelKeys = { Backspace: true, Tab: true, Enter: true }
   return event => {
-    const { Editor, isStatic, config } = settings
+    const { Editor, isStatic, onKeyDown, defParaSep } = settings
     Editor.buttons.clearDropdown()
 
-    typeof config.editor.onKeyDown === 'function' &&
-      config.editor.onKeyDown(e, settings)
+    typeof onKeyDown === 'function' &&
+      onKeyDown(event, settings.Editor)
 
     if (
       !Editor.contentEl ||
@@ -115,7 +119,7 @@ const onKeyDown = settings => {
     switch (event.key){
       case 'Tab': return event.preventDefault()
       case 'Enter': {
-        exec(PARA_SEP_STR, `<${config.defParaSep}>`)
+        exec(PARA_SEP_STR, `<${defParaSep}>`)
         return setTimeout(() => (updateToolsPos(settings)), 0)
       }
       case 'Backspace': {
@@ -144,7 +148,7 @@ const onKeyDown = settings => {
  */
 const onSelChange = settings => {
   return e => {
-    const { Editor, isStatic, config } = settings
+    const { Editor, isStatic, showOnClick, onSelect } = settings
     if (isStatic) return null
     const selection = getSelection()
     // Find the closest dom node to search for the editor dom node
@@ -163,17 +167,16 @@ const onSelChange = settings => {
     else if (Editor.isActive && !isEditor)
       Editor.isActive = false
     // If it's not active, but we have the correct editor
-    // Check config to see if the tools should be shown
-    else if (!Editor.isActive && isEditor && !config.editor.showOnClick)
+    // Check settings to see if the tools should be shown
+    else if (!Editor.isActive && isEditor && !showOnClick)
       return null
 
     // If wrong editor, and the tools are visable, turn them off
     if (!isEditor)
       return Editor.toolsVisible && toggleTools('off', settings)
 
-    // Check for a config callback on select, and call it
-    typeof config.editor.onSelect === 'function' &&
-      config.editor.onSelect(e, settings)
+    // Check for a settings callback on select, and call it
+    typeof onSelect === 'function' && onSelect(e, settings)
 
     // If the tools are on, update their pos based on the selection
     Editor.toolsVisible && updateToolsPos(settings, selection)
@@ -197,12 +200,12 @@ const onSelChange = settings => {
  * @return { void }
  */
 const updateToolsPos = (settings, selection, selPos) => {
-  const { Editor, config, isStatic } = settings
+  const { Editor, isStatic, offset } = settings
   if (isStatic || !Editor.popper) return null
 
   selPos = selPos || getSelectionCoords(selection)
   if (!selPos) return null
-  const offset = config.tools.offset
+
   Editor.caretPos = {
     x: selPos.x + offset.x || 0,
     y: selPos.y + offset.y || 0
@@ -247,26 +250,19 @@ const toggleTools = (toggle, settings) => {
 
 const onSave = settings => {
   return e => {
-    toggleTools('off', settings)
-    const skipCleanUp = settings.onSave && settings.onSave(
-      settings.Editor.contentEl.innerHTML, settings
-    )
-    if (skipCleanUp) return null
-
-
+    settings.onSave && settings.onSave(e, settings.Editor)
+      ? null
+      : destroy(settings)
   }
 }
+
 const onCancel = settings => {
   return e => {
-    if (settings.content)
-      settings.element.innerHTML = settings.content
-
-    // Not closing tools, they still show up
-    toggleTools('off', settings)
-    settings.Editor.toolsVisible = false
-    settings.Editor.isActive = false
-    const skipCleanUp = settings.onCancel && settings.onCancel(settings)
-    if (skipCleanUp) return null
+    // Reset the element content
+    settings.element.innerHTML = settings.content || ''
+    settings.onCancel && settings.onCancel(e, settings.Editor)
+      ? null
+      : destroy(settings)
   }
 }
 
@@ -275,7 +271,7 @@ const onCancel = settings => {
  * @param { object } settings - props that define how WYSIWYG editor functions
  * @return { object } - WYSIWYG editor object
  */
-export const init = opts => {
+const init = opts => {
   const settings = buildSettings(opts)
   const tools = buildTools(settings || {})
   const toolbar = buildToolBar(settings.classes.TOOL_BAR)
@@ -301,7 +297,7 @@ export const init = opts => {
 /**
  * Cleans up the WYSIWYG editor by removing events, tools and popper object
  */
-export const destroy = (settings) => {
+const destroy = (settings) => {
   return () => {
     CleanEditor(settings)
     Styles.destroy()
@@ -309,10 +305,10 @@ export const destroy = (settings) => {
   }
 }
 
-
-export default {
+export {
   destroy,
   exec,
   init,
-  updateDefaultStyles: Styles.updateDefaultStyles,
+  registerTools,
+  updateDefaultStyles,
 }

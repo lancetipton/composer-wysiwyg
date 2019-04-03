@@ -6,7 +6,7 @@ const buildPopperOpts = (settings, cb) => ({
   removeOnDestroy: true,
   placement: 'bottom-start',
   onCreate: cb(settings),
-  ...settings.config.popper,
+  ...settings.popper,
   modifiers: {
     offset: { offset: 5 },
     keepTogether: { enabled: true },
@@ -15,7 +15,7 @@ const buildPopperOpts = (settings, cb) => ({
       padding: 10,
       escapeWithReference: false,
     },
-    ...(settings.config.popper && settings.config.popper.modifiers || {})
+    ...(settings.popper && settings.popper.modifiers || {})
   },
 })
 

@@ -28,11 +28,9 @@ export const DEF_CONFIG = {
     pop: {},
     static: {},
   },
-  editor: {},
-  tools: {
-    offset: {
-      x: 0,
-      y: 35
-    }
+  offset: {
+    x: 0,
+    y: 35
   },
+  tools: [],
 }

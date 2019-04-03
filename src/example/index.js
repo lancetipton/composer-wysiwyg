@@ -16,9 +16,6 @@ const onCancel = () => {
 }
 
 const options = {
-  onChange: onChange,
-  onSave: onSave,
-  onCancel: onCancel,
   tools: [
     'redo',
     'undo',
@@ -38,15 +35,17 @@ const options = {
     'link',
     'image'
   ],
-  config: {
-    editor: {
-      showOnClick: true,
-    },
-    iconType: 'fas',
-    styleWithCSS: true,
-    styles: {},
-    popper: {},
+  offset: {
+
   },
+  onChange: onChange,
+  onSave: onSave,
+  onCancel: onCancel,
+  showOnClick: true,
+  iconType: 'fas',
+  styleWithCSS: true,
+  styles: {},
+  popper: {}
 }
 
 const buildPopEditor = () => {

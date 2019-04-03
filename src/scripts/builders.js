@@ -1,6 +1,6 @@
-import { defaultTools } from './tools'
-import Styles from './style_loader'
-import { getStyles } from './styles'
+import { defaultTools, registerTools } from './tools'
+import * as Styles from './style_loader'
+import { getStyles, updateDefaultStyles } from './styles'
 import {
   addEventListener,
   appendChild,
@@ -17,12 +17,10 @@ import {
 } from './constants'
 
 
-export const buildSettings = opts => ({
-  ...opts,
+const buildSettings = settings => ({
+  ...joinSettings(settings),
   Editor: { ...buildEditor() },
-  classes: { ...CLASSES, ...opts.classes },
-  isStatic: opts.type === 'static',
-  config: buildConfig(opts.config)
+  isStatic: settings.type === 'static'
 })
 
 /**
@@ -30,7 +28,7 @@ export const buildSettings = opts => ({
  * @param  { string } toolBarCls - class for the tool bar dom node
  * @return { dom node } - the build tool bar dom node
  */
-export const buildToolBar = toolBarCls => {
+const buildToolBar = toolBarCls => {
   const toolbar = createElement('div')
   toolbar.className = toolBarCls
 
@@ -43,7 +41,7 @@ export const buildToolBar = toolBarCls => {
  * @param { dom node } toolbar - dom node that holds the editor tools dom nodes
  * @return { void }
  */
-export const buildRoot = (settings, toolbar, contentActs) => {
+const buildRoot = (settings, toolbar, contentActs) => {
   const wrapper = createElement('div')
   wrapper.className = settings.classes.WRAPPER
 
@@ -73,11 +71,10 @@ export const buildRoot = (settings, toolbar, contentActs) => {
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { array } - joined default and passed in tools
  */
-export const buildTools = settings => {
-  const defTools = defaultTools(settings.config.iconType)
+const buildTools = settings => {
+  const defTools = defaultTools(settings.iconType)
   return settings.tools
-    ? (settings
-      .tools
+    ? (settings.tools
       .map(tool => {
         if (typeof tool !== 'string' && defTools[tool.name])
           return { ...defTools[tool.name], ...tool }
@@ -95,7 +92,7 @@ export const buildTools = settings => {
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { void }
  */
-export const buildStyles = (settings) => (Styles.add(STYLE_ID, getStyles(settings)))
+const buildStyles = (settings) => (Styles.add(STYLE_ID, getStyles(settings)))
 
 
 /**
@@ -125,7 +122,7 @@ const buildAct = (settings, onClick, type, icon) => {
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { array } array of dom node content actions
  */
-export const buildContentActions = (settings, onSave, onCancel) => {
+const buildContentActions = (settings, onSave, onCancel) => {
   const contentActs = []
   settings.onSave && contentActs.push(buildAct(
     settings,
@@ -144,7 +141,7 @@ export const buildContentActions = (settings, onSave, onCancel) => {
   return contentActs
 }
 
-export const buildEditor = () => ({
+const buildEditor = () => ({
   contentEl: undefined,
   end: undefined,
   onSelChange: undefined,
@@ -164,46 +161,51 @@ export const buildEditor = () => ({
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { dom node } - build dom node that holds the editable content
  */
-export const buildContent = (settings, onContentChange, onKeyDown) => {
-  const { Editor, isStatic, element, classes, placeholder } = settings
-  const content = !isStatic && element || createElement('div')
-  content.innerHTML = settings.content || EMPTY_INPUT
-  content.contentEditable = true
-  content.classList.add(classes.CONTENT)
+const buildContent = (settings, onContentChange, onKeyDown) => {
+  const { Editor, isStatic, element, classes, content } = settings
+  const contentEl = !isStatic && element || createElement('div')
+  contentEl.innerHTML = content || EMPTY_INPUT
+  contentEl.contentEditable = true
+  contentEl.classList.add(classes.CONTENT)
   Editor.mutObs = getMutationObserver(
-    content,
-    debounce(onContentChange(content, settings))
+    contentEl,
+    debounce(onContentChange(contentEl, settings))
   )
 
-  if (placeholder && !content.innerHTML)
-    content.dataset.placeholder = placeholder
+  if (settings.placeholder && !contentEl.innerHTML)
+    contentEl.dataset.placeholder = settings.placeholder
 
   Editor.onKeyDown = onKeyDown(settings)
-  addEventListener(content, 'keydown', Editor.onKeyDown)
+  addEventListener(contentEl, 'keydown', Editor.onKeyDown)
 
   if (isStatic){
-    content.style.width = `${element.clientWidth}px`
-    content.style.height = `${element.clientHeight - 24}px`
-    appendChild(element, content)
+    contentEl.style.width = `${element.clientWidth}px`
+    contentEl.style.height = `${element.clientHeight - 24}px`
+    appendChild(element, contentEl)
   }
 
-  return content
+  return contentEl
 }
 
-
-const buildConfig = (config = {}) => {
-  const styles = config.styles || {}
+/**
+ * Joins settings together with default settings
+ * @param  { object } [settings={}] - user settings to override the defaults
+ * @return { object } - joined user settings and default settings
+ */
+const joinSettings = (settings = {}) => {
+  const styles = settings.styles || {}
   return {
     ...DEF_CONFIG,
-    ...config,
-    tools: {
+    ...settings,
+    classes: { ...CLASSES, ...settings.classes },
+    offset: {
+      ...DEF_CONFIG.offset,
+      ...settings.offset,
+    },
+    tools: [
       ...DEF_CONFIG.tools,
-      ...(config.tools || {})
-    },
-    editor: {
-      ...DEF_CONFIG.editor,
-      ...(config.editor || {})
-    },
+      ...(settings.tools || [])
+    ],
     styles: {
       ...DEF_CONFIG.styles,
       ...styles,
@@ -218,4 +220,18 @@ const buildConfig = (config = {}) => {
     }
   }
 
+}
+
+
+export {
+  buildContent,
+  buildContentActions,
+  buildEditor,
+  buildRoot,
+  buildSettings,
+  buildStyles,
+  buildToolBar,
+  buildTools,
+  registerTools,
+  updateDefaultStyles,
 }

@@ -6,7 +6,7 @@ let sheetCache = {}
  * @param  { string } id - id of the cached style
  * @return { dom node } - the found or created style dom node
  */
-const get = id => {
+export const get = id => {
   if (sheetCache[id]) return sheetCache[id]
   const newSheet = document.createElement('style')
   newSheet.id = id
@@ -21,7 +21,7 @@ const get = id => {
  * @param  { string } styleStr - contents to update the style with
  * @return { void }
  */
-const set = (id, styleStr) => {
+export const set = (id, styleStr) => {
   const styleEl = get(id)
   if (styleEl.styleSheet) styleEl.styleSheet.cssText = styleStr
   else styleEl.innerHTML = styleStr
@@ -32,7 +32,7 @@ const set = (id, styleStr) => {
  * @param  { string } id - id of the cached style
  * @return { void }
  */
-const remove = id => {
+export const remove = id => {
   try {
     sheetCache[id] && document.head.removeChild(sheetCache[id])
   }
@@ -46,7 +46,7 @@ const remove = id => {
  * Removes all styles nodes from cache and dom
  * @return {void}
  */
-const destroy = () => (
+export const destroy = () => (
   sheetCache = Object
     .keys(sheetCache)
     .reduce((cache, key) => {
@@ -130,7 +130,7 @@ const createRules = (rule) => Object
  * @param  { array of objects } rules - array of object styles to add convert into string
  * @return { string } styles objects converted into string as formatted css styles
  */
-const build = (...rules) => Object
+export const build = (...rules) => Object
   .entries(deepMerge(...rules))
   .reduce((styles, [ selector, rls ]) => (
     styles + createBlock(selector, rls)
@@ -142,12 +142,13 @@ const build = (...rules) => Object
  * @param  { object } styleObj - hold styles to be added to dom as JS style css
  * @return { void }
  */
-const add = (id, styleObj) => set(id, build(styleObj))
+export const add = (id, styleObj) => set(id, build(styleObj))
 
 export default {
   add,
   build,
   destroy,
+  get,
   remove,
   set
 }

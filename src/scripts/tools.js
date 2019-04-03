@@ -1,6 +1,6 @@
 import { exec } from './util'
 import { FORMAT_BLOCK } from './constants'
-
+let addedTools = {}
 const windowPrompt = prompt => {
   const url = window.prompt(prompt.message)
   if (url) exec(prompt.action, url)
@@ -10,7 +10,15 @@ const buildIcon = (type, text) => {
   return `<span class="btn-icon ${type}">${text || ''}</span>`
 }
 
-export const defaultTools = faType => {
+const registerTools = tools => {
+  addedTools = {
+    ...addedTools,
+    ...tools,
+  }
+}
+
+
+const defaultTools = faType => {
   return {
     redo: {
       icon: buildIcon(`${faType} fa-redo`),
@@ -212,7 +220,13 @@ export const defaultTools = faType => {
         message: 'Enter the image URL',
         action: 'insertImage'
       })
-    }
+    },
+    ...addedTools
   }
 
+}
+
+export {
+  defaultTools,
+  registerTools
 }

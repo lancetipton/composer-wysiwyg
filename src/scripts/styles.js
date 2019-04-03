@@ -18,7 +18,7 @@ const defaultStyles = {
   shadow: '2px 2px 8px rgba(0,0,0,0.2)'
 }
 
-export const updateDefaultStyles = styleProps => {
+const updateDefaultStyles = styleProps => {
   if (typeof styleProps !== 'object' || Array.isArray(styleProps))
     return console.warn(`Updating default styles requires a styles object argument`)
 
@@ -41,11 +41,11 @@ export const updateDefaultStyles = styleProps => {
   return defaultStyles
 }
 
-export const getStyles = settings => {
-  const useCls = { ...CLASSES, ...(settings.config.classes || {}) }
+const getStyles = settings => {
+  const useCls = { ...CLASSES, ...(settings.classes || {}) }
   const { colors, speeds, fonts, shadow } = defaultStyles
-  const popRules = settings.config.styles.pop || {}
-  const staticRules = settings.config.styles.static || {}
+  const popRules = settings.styles.pop || {}
+  const staticRules = settings.styles.static || {}
 
   return {
     ...(popRules || {}),
@@ -242,4 +242,9 @@ export const getStyles = settings => {
     }
   }
 
+}
+
+export {
+  getStyles,
+  updateDefaultStyles,
 }
