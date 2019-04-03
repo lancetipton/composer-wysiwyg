@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const webpack = require('webpack')
 
-const libraryName = 'composer'
+const libraryName = 'Composer'
 const ENV_MODE = process.env.ENV
 const outputFile = libraryName + '.min.js'
 const paths = [ './build' ]
@@ -22,9 +22,8 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          plugins: [ 'transform-object-rest-spread' ]
+        use: {
+          loader: 'babel-loader'
         }
       },
       { enforce: 'pre', test: /\.(js|css)$/, loader: 'remove-comments-loader' }

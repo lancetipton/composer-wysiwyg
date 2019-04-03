@@ -55,6 +55,7 @@ export const getStyles = settings => {
       opacity: 0,
       transition: `opacity ${speeds.showTools}`,
       visibility: 'hidden',
+      maxHeight: 24,
       ...popRules.root,
       //----- WYSIWYG WRAPPER ----- //
       [`.${useCls.WRAPPER}`]: {
@@ -219,9 +220,9 @@ export const getStyles = settings => {
       position: 'relative',
       display: 'flex',
       justifyContent: 'center',
-      opacity: 1,
-      transition: `opacity ${speeds.showTools}`,
-      visibility: 'visible',
+      transition: 'initial',
+      opacity: 'initial',
+      visibility: 'initial',
       backgroundColor: colors.ebonyBlack,
       ...staticRules.root,
       [`.${useCls.WRAPPER}`]: {

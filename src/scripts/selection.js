@@ -6,7 +6,7 @@ export const getSelection = () =>
   window.getSelection
     ? window.getSelection()
     : document.selection
-      ? document.selection.createRange()
+      ? document.selection
       : null
 
 /**
@@ -18,7 +18,7 @@ export const getSelectedText = selection => {
   selection = selection || getSelection()
   return window.getSelection
     ? selection && selection.toString()
-    : selection && selection.text
+    : selection && selection.createRange && selection.createRange().text
 }
 
 /**
@@ -50,8 +50,17 @@ export const getSelectionCoords = selection => {
  * @param  { object } selection - current select rage of text
  * @return { number } current caret position
  */
+export const getSelectionRange = selection => {
+  selection = selection || getSelection()
+  return selection.rangeCount
+    ? selection.getRangeAt(0)
+    : null
+}
+
 export const getCaretPosition = (el, selection) => {
-  const range = selection.getRangeAt(0)
+  const range = getSelectionRange(selection)
+  if (!range) return null
+
   const selected = range.toString().length
   const preCaretRange = range.cloneRange()
   preCaretRange.selectNodeContents(el)
@@ -60,6 +69,12 @@ export const getCaretPosition = (el, selection) => {
   return preCaretRange.toString().length - selected
 }
 
+export const addSelectionRange = (range, selection, clean = true) => {
+  selection = selection || getSelection()
+  if (!range || selection || !selection.addRange) return null
+  clean && selection.removeAllRanges()
+  selection.addRange(range)
+}
 
 /**
  * Sets the caret position in the editable area of the element
@@ -68,11 +83,12 @@ export const getCaretPosition = (el, selection) => {
  * @return { void }
  */
 export const setCaretPosition = (element, position) => {
-  const sel = getSelection()
+  const selection = getSelection()
+  if (!selection.rangeCount) return null
   const range = document.createRange()
   range.setStart(element, position)
   range.collapse(true)
-  sel.removeAllRanges()
-  sel.addRange(range)
+  selection.removeAllRanges()
+  selection.addRange(range)
 }
 

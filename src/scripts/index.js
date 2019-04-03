@@ -28,6 +28,7 @@ import {
 const onClickEditor = settings => {
   return e => {
     const { isStatic, config, Editor } = settings
+    Editor.isActive = true
     if (!isStatic && config.editor.showOnClick && !Editor.toolsVisible)
       toggleTools('on', settings)
     typeof config.editor.onClick === 'function' && config.editor.onClick(e, settings)
@@ -98,8 +99,8 @@ const setupEditor = (settings, contentEl, buttons) => {
 const onKeyDown = settings => {
   const handelKeys = { Backspace: true, Tab: true, Enter: true }
   return event => {
-    const { Editor, classes, isStatic, config } = settings
-    Editor.buttons.clearDropdown(null, classes)
+    const { Editor, isStatic, config } = settings
+    Editor.buttons.clearDropdown()
 
     typeof config.editor.onKeyDown === 'function' &&
       config.editor.onKeyDown(e, settings)
@@ -146,24 +147,43 @@ const onSelChange = settings => {
     const { Editor, isStatic, config } = settings
     if (isStatic) return null
     const selection = getSelection()
+    // Find the closest dom node to search for the editor dom node
+    // text nodes don't have a .closest method, so we need on that does
     const findNode = selection.anchorNode.nodeType === 3
       ? selection.anchorNode.parentNode
       : selection.anchorNode
 
-    if (findNode.closest(`[contenteditable="true"]`) !== Editor.contentEl)
+    // Check if we have the correct editor for this event
+    const isEditor = findNode.closest(`[contenteditable="true"]`) === Editor.contentEl
+
+    // If is active not defined, check if its the active editor
+    if (Editor.isActive === undefined)
+      Editor.isActive = document.activeElement === Editor.contentEl
+    // If it is active, but wrong editor, turn it off
+    else if (Editor.isActive && !isEditor)
+      Editor.isActive = false
+    // If it's not active, but we have the correct editor
+    // Check config to see if the tools should be shown
+    else if (!Editor.isActive && isEditor && !config.editor.showOnClick)
+      return null
+
+    // If wrong editor, and the tools are visable, turn them off
+    if (!isEditor)
       return Editor.toolsVisible && toggleTools('off', settings)
 
+    // Check for a config callback on select, and call it
     typeof config.editor.onSelect === 'function' &&
       config.editor.onSelect(e, settings)
 
-    // This is causing tools to show up when first clicking on editor
-    !Editor.toolsVisible && updateToolsPos(settings, selection)
+    // If the tools are on, update their pos based on the selection
+    Editor.toolsVisible && updateToolsPos(settings, selection)
 
     // Check if anything was selected
     // if anchorOffset and focusOffset are 0, then nothing was selected, so return
     if (!selection || (!selection.anchorOffset && !selection.focusOffset))
       return null
 
+    // Check if the tools are off, and if so turn them on
     !Editor.toolsVisible && toggleTools('on', settings)
     e.preventDefault()
   }
@@ -178,16 +198,16 @@ const onSelChange = settings => {
  */
 const updateToolsPos = (settings, selection, selPos) => {
   const { Editor, config, isStatic } = settings
-  if (isStatic) return null
+  if (isStatic || !Editor.popper) return null
 
   selPos = selPos || getSelectionCoords(selection)
   if (!selPos) return null
   const offset = config.tools.offset
-
   Editor.caretPos = {
     x: selPos.x + offset.x || 0,
     y: selPos.y + offset.y || 0
   }
+
   Editor.popper &&
     Editor.popper.scheduleUpdate &&
     Editor.popper.scheduleUpdate()
@@ -225,6 +245,30 @@ const toggleTools = (toggle, settings) => {
   Editor.toolsVisible = true
 }
 
+const onSave = settings => {
+  return e => {
+    toggleTools('off', settings)
+    const skipCleanUp = settings.onSave && settings.onSave(
+      settings.Editor.contentEl.innerHTML, settings
+    )
+    if (skipCleanUp) return null
+
+
+  }
+}
+const onCancel = settings => {
+  return e => {
+    if (settings.content)
+      settings.element.innerHTML = settings.content
+
+    // Not closing tools, they still show up
+    toggleTools('off', settings)
+    settings.Editor.toolsVisible = false
+    settings.Editor.isActive = false
+    const skipCleanUp = settings.onCancel && settings.onCancel(settings)
+    if (skipCleanUp) return null
+  }
+}
 
 /**
  * Builds the WYSIWYG editor
@@ -238,17 +282,17 @@ export const init = opts => {
   const contentEl = buildContent(settings, onContentChange, onKeyDown)
 
   const buttons = new Buttons(settings)
-  buttons.buildToolBtns(tools, toolbar, settings.classes, contentEl)
+  buttons.buildToolBtns(tools, toolbar, contentEl)
 
-  const contentActions = buildContentActions(settings, contentEl)
+  const contentActions = buildContentActions(settings, onSave(settings), onCancel(settings))
   const rootEl = buildRoot(settings, toolbar, contentActions)
 
+  // Add editor styles to the dom
+  buildStyles(settings)
   // Add Editor / WYSIWYG settings to the document
   setupEditor(settings, contentEl, buttons)
   // If not a static editor, build the popper element
   !settings.isStatic && buildPopper(settings, rootEl, updateToolsPos)
-  // Add editor styles to the dom
-  buildStyles(settings)
 
   return settings.Editor
 }

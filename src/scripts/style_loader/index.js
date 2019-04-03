@@ -103,9 +103,7 @@ const createBlock = (selector, rls) => {
   }, {})
   const styRls = createRules(filteredRls)
   let block = `${selector} {${styRls}\n}\n`
-  subSelect.length && subSelect.map(subItem => {
-    block += createBlock(subItem[0], subItem[1])
-  })
+  subSelect.length && subSelect.map(subItem => block += createBlock(subItem[0], subItem[1]))
 
   return block
 }

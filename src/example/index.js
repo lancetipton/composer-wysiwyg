@@ -3,10 +3,14 @@ const onChange = (html) => {
   // console.log(html)
 }
 
+// Calls composer.destroy() after this method CB
+// return true from onSave, will stop destroy from being called
 const onSave = () => {
   console.log('------------------I am save------------------')
 }
 
+// Calls composer.destroy() after this method CB
+// return true from onCancel, will stop destroy from being called
 const onCancel = () => {
   console.log('------------------I am cancel------------------')
 }
@@ -36,15 +40,13 @@ const options = {
   ],
   config: {
     editor: {
-      // Only works when the editor is empty, otherwise editor always shows
-      // See line 161 of index
-      showOnClick: false,
+      showOnClick: true,
     },
     iconType: 'fas',
     styleWithCSS: true,
     styles: {},
     popper: {},
-  }
+  },
 }
 
 const buildPopEditor = () => {
@@ -52,8 +54,8 @@ const buildPopEditor = () => {
   if (!popEditor) return console.warn('Can not find dom node with id "#editor-pop"')
   const popOpts = Object.assign({}, options)
   popOpts.element = popEditor
-  popOpts.content = popEditor.innerHTML
-  const popComp = window.composer.init(popOpts)
+  popOpts.content = 'I am the pop editor'
+  const popComp = window.Composer.init(popOpts)
   return popComp
 }
 
@@ -64,9 +66,9 @@ const buildStaticEditor = () => {
   staticOpts.onCancel = undefined
   staticOpts.onSave = undefined
   staticOpts.element = staticEditor
-  staticOpts.content = staticEditor.innerHTML
+  staticOpts.content = 'I am the static editor'
   staticOpts.type = 'static'
-  const staticComp = window.composer.init(staticOpts)
+  const staticComp = window.Composer.init(staticOpts)
   return staticComp
 }
 

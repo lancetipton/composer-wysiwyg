@@ -16,37 +16,37 @@ export const defaultTools = faType => {
       icon: buildIcon(`${faType} fa-redo`),
       title: 'Redo',
       state: 'redo',
-      result: 'exec'
+      action: 'exec'
     },
     undo: {
       icon: buildIcon(`${faType} fa-undo`),
       title: 'Undo',
       state: 'undo',
-      result: 'exec'
+      action: 'exec'
     },
     bold: {
       icon: buildIcon(`${faType} fa-bold`),
       title: 'Bold',
       state: 'bold',
-      result: 'exec'
+      action: 'exec'
     },
     italic: {
       icon: buildIcon(`${faType} fa-italic`),
       title: 'Italic',
       state: 'italic',
-      result: 'exec'
+      action: 'exec'
     },
     underline: {
       icon: buildIcon(`${faType} fa-underline`),
       title: 'Underline',
       state: 'underline',
-      result: 'exec'
+      action: 'exec'
     },
     strikethrough: {
       icon: buildIcon(`${faType} fa-strikethrough`),
       title: 'Strike-through',
       state: 'strikeThrough',
-      result: 'exec'
+      action: 'exec'
     },
     heading: {
       icon: buildIcon(`${faType} fa-heading`),
@@ -59,19 +59,19 @@ export const defaultTools = faType => {
           icon: buildIcon(`${faType} fa-h1`, faType !== 'far' && '<b>1<b>'),
           title: 'Heading 1',
           el: '<h1>',
-          result: FORMAT_BLOCK
+          action: FORMAT_BLOCK
         },
         heading2: {
           icon: buildIcon(`${faType} fa-h2`, faType !== 'far' && '<b>2<b>'),
           title: 'Heading 2',
           el: '<h2>',
-          result: FORMAT_BLOCK
+          action: FORMAT_BLOCK
         },
         heading3: {
           icon: buildIcon(`${faType} fa-h3`, faType !== 'far' && '<b>3<b>'),
           title: 'Heading 3',
           el: '<h3>',
-          result: FORMAT_BLOCK
+          action: FORMAT_BLOCK
         },
       }
     },
@@ -85,13 +85,13 @@ export const defaultTools = faType => {
           icon: buildIcon(`${faType} fa-indent`),
           title: 'Indent',
           state: 'indent',
-          result: 'exec'
+          action: 'exec'
         },
         outdent: {
           icon: buildIcon(`${faType} fa-outdent`),
           title: 'Outdent',
           state: 'outdent',
-          result: 'exec'
+          action: 'exec'
         },
       }
     },
@@ -105,25 +105,25 @@ export const defaultTools = faType => {
           icon: buildIcon(`${faType} fa-align-left`),
           title: 'Left',
           state: 'justifyLeft',
-          result: 'exec'
+          action: 'exec'
         },
         justifyCenter: {
           icon: buildIcon(`${faType} fa-align-center`),
           title: 'Center',
           state: 'justifyCenter',
-          result: 'exec'
+          action: 'exec'
         },
         justifyRight: {
           icon: buildIcon(`${faType} fa-align-right`),
           title: 'Right',
           state: 'justifyRight',
-          result: 'exec'
+          action: 'exec'
         },
         justifyFull: {
           icon: buildIcon(`${faType} fa-align-justify`),
           title: 'Justify',
           state: 'justifyFull',
-          result: 'exec'
+          action: 'exec'
         },
 
       }
@@ -138,13 +138,13 @@ export const defaultTools = faType => {
           icon: buildIcon(`${faType} fa-subscript`),
           title: 'Subscript',
           state: 'subscript',
-          result: 'exec'
+          action: 'exec'
         },
         superscript: {
           icon: buildIcon(`${faType} fa-superscript`),
           title: 'Superscript',
           state: 'superscript',
-          result: 'exec'
+          action: 'exec'
         },
       }
     },
@@ -153,14 +153,14 @@ export const defaultTools = faType => {
       icon: buildIcon(`${faType} fa-paragraph`),
       title: 'Paragraph',
       el: '<p>',
-      result: FORMAT_BLOCK
+      action: FORMAT_BLOCK
     },
     quote: {
       listDisable: true,
       icon: buildIcon(`${faType} fa-quote-right`),
       title: 'Quote',
       el: '<blockquote>',
-      result: FORMAT_BLOCK
+      action: FORMAT_BLOCK
     },
     list: {
       icon: buildIcon(`${faType} fa-list`),
@@ -172,13 +172,13 @@ export const defaultTools = faType => {
           icon: buildIcon(`${faType} fa-list-ol`),
           title: 'Ordered List',
           state: 'insertOrderedList',
-          result: 'exec'
+          action: 'exec'
         },
         ulist: {
           icon: buildIcon(`${faType} fa-list-ul`),
           title: 'Unordered List',
           state: 'insertUnorderedList',
-          result: 'exec'
+          action: 'exec'
         }
       }
     },
@@ -186,12 +186,12 @@ export const defaultTools = faType => {
       icon: buildIcon(`${faType} fa-code`),
       title: 'Code',
       el: '<pre>',
-      result: FORMAT_BLOCK
+      action: FORMAT_BLOCK
     },
     line: {
       icon: buildIcon(`${faType} fa-arrows-alt-h`),
       title: 'Horizontal Line',
-      result: 'exec'
+      action: 'exec'
     },
     link: {
       icon: buildIcon(`${faType} fa-link`),
@@ -200,7 +200,7 @@ export const defaultTools = faType => {
         message: 'Enter the link URL',
         action: 'createLink'
       },
-      result: () => windowPrompt({
+      action: () => windowPrompt({
         message: 'Enter the link URL',
         action: 'createLink'
       })
@@ -208,7 +208,7 @@ export const defaultTools = faType => {
     image: {
       icon: buildIcon(`${faType} fa-image`),
       title: 'Image',
-      result: () => windowPrompt({
+      action: () => windowPrompt({
         message: 'Enter the image URL',
         action: 'insertImage'
       })

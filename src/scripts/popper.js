@@ -31,6 +31,7 @@ const onPopperCreate = (settings, onSelChange) => {
     setCaretPosition(caretEl, 0)
     popper && popper.onCreate && popper.onCreate(popper, settings)
     addEventListener(document, 'selectionchange', Editor.onSelChange)
+    element.focus()
   }
 }
 

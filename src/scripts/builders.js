@@ -125,18 +125,18 @@ const buildAct = (settings, onClick, type, icon) => {
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { array } array of dom node content actions
  */
-export const buildContentActions = settings => {
+export const buildContentActions = (settings, onSave, onCancel) => {
   const contentActs = []
   settings.onSave && contentActs.push(buildAct(
     settings,
-    settings.onSave,
+    onSave,
     'save',
     'check-circle'
   ))
 
   settings.onCancel && contentActs.push(buildAct(
     settings,
-    settings.onCancel,
+    onCancel,
     'cancel',
     'times-circle'
   ))
