@@ -1,9 +1,23 @@
 import { exec } from './util'
 import { FORMAT_BLOCK } from './constants'
+import { getSelection } from './selection'
+
 let addedTools = {}
-const windowPrompt = prompt => {
-  const url = window.prompt(prompt.message)
-  if (url) exec(prompt.action, url)
+const windowPrompt = ({ remove, message, action, settings, button }) => {
+
+  if (action === 'CreateLink'){
+    const selection = getSelection()
+    const checkNode = selection.anchorNode.nodeType === 3
+      ? selection.anchorNode.parentNode
+      : selection.anchorNode
+
+    if (checkNode.tagName === 'A')
+      return exec(remove, url)
+    // button.classList.add(settings.classes.BTN_SELECTED)
+  }
+
+  const url = window.prompt(message)
+  if (url) exec(action, url)
 }
 
 const buildIcon = (type, text) => {
@@ -18,7 +32,8 @@ const registerTools = tools => {
 }
 
 
-const defaultTools = faType => {
+const defaultTools = settings => {
+  const faType = settings.iconType
   return {
     redo: {
       icon: buildIcon(`${faType} fa-redo`),
@@ -64,21 +79,45 @@ const defaultTools = faType => {
       listDisable: true,
       options: {
         heading1: {
-          icon: buildIcon(`${faType} fa-h1`, faType !== 'far' && '<b>1<b>'),
+          icon: buildIcon('', '<b>1</b>'),
           title: 'Heading 1',
           el: '<h1>',
+          state: 'h1',
           action: FORMAT_BLOCK
         },
         heading2: {
-          icon: buildIcon(`${faType} fa-h2`, faType !== 'far' && '<b>2<b>'),
+          icon: buildIcon('', '<b>2</b>'),
           title: 'Heading 2',
           el: '<h2>',
+          state: 'h2',
           action: FORMAT_BLOCK
         },
         heading3: {
-          icon: buildIcon(`${faType} fa-h3`, faType !== 'far' && '<b>3<b>'),
+          icon: buildIcon('', '<b>3</b>'),
           title: 'Heading 3',
           el: '<h3>',
+          state: 'h3',
+          action: FORMAT_BLOCK
+        },
+        heading4: {
+          icon: buildIcon('', '<b>4</b>'),
+          title: 'Heading 4',
+          el: '<h4>',
+          state: 'h4',
+          action: FORMAT_BLOCK
+        },
+        heading5: {
+          icon: buildIcon('', '<b>5</b>'),
+          title: 'Heading 5',
+          el: '<h5>',
+          state: 'h5',
+          action: FORMAT_BLOCK
+        },
+        heading6: {
+          icon: buildIcon('', '<b>6</b>'),
+          title: 'Heading 6',
+          el: '<h6>',
+          state: 'h6',
           action: FORMAT_BLOCK
         },
       }
@@ -204,21 +243,23 @@ const defaultTools = faType => {
     link: {
       icon: buildIcon(`${faType} fa-link`),
       title: 'Link',
-      prompt: {
+      action: (tool, settings, button, e) => windowPrompt({
         message: 'Enter the link URL',
-        action: 'createLink'
-      },
-      action: () => windowPrompt({
-        message: 'Enter the link URL',
-        action: 'createLink'
+        action: 'CreateLink',
+        remove: 'unlink',
+        check: 'A',
+        settings,
+        button
       })
     },
     image: {
       icon: buildIcon(`${faType} fa-image`),
       title: 'Image',
-      action: () => windowPrompt({
+      action: (tool, settings, button, e) => windowPrompt({
         message: 'Enter the image URL',
-        action: 'insertImage'
+        action: 'InsertImage',
+        settings,
+        button,
       })
     },
     ...addedTools

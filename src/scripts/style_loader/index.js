@@ -1,59 +1,4 @@
 import Properties from './properties'
-let sheetCache = {}
-
-/**
- * Gets or creates a style dom node
- * @param  { string } id - id of the cached style
- * @return { dom node } - the found or created style dom node
- */
-export const get = id => {
-  if (sheetCache[id]) return sheetCache[id]
-  const newSheet = document.createElement('style')
-  newSheet.id = id
-  sheetCache[id] = newSheet
-  document.head.appendChild(sheetCache[id])
-  return sheetCache[id]
-}
-
-/**
- * Gets the dom style node and sets its content to be the passed in value
- * @param  { string } id - id of the cached style
- * @param  { string } styleStr - contents to update the style with
- * @return { void }
- */
-export const set = (id, styleStr) => {
-  const styleEl = get(id)
-  if (styleEl.styleSheet) styleEl.styleSheet.cssText = styleStr
-  else styleEl.innerHTML = styleStr
-}
-
-/**
- * Removes style cache item from cache and dom
- * @param  { string } id - id of the cached style
- * @return { void }
- */
-export const remove = id => {
-  try {
-    sheetCache[id] && document.head.removeChild(sheetCache[id])
-  }
-  catch (e){
-    sheetCache[id] && sheetCache[id].parentNode.removeChild(sheetCache[id])
-  }
-  sheetCache[id] = undefined
-}
-
-/**
- * Removes all styles nodes from cache and dom
- * @return {void}
- */
-export const destroy = () => (
-  sheetCache = Object
-    .keys(sheetCache)
-    .reduce((cache, key) => {
-      remove(key)
-      return cache
-    }, {})
-)
 
 /**
  * Deep merges an array of objects together
@@ -113,43 +58,96 @@ const createBlock = (selector, rls) => {
  * @param  { object } rule - style as JS CSS
  * @return { string } rule convert into CSS string
  */
-const createRules = (rule) => Object
-  .entries(rule)
-  .reduce((ruleString, [ propName, propValue ]) => {
-    const name = propName
-      .replace(/([A-Z])/g, matches => `-${matches[0].toLowerCase()}`)
+const createRules = rule => (
+  Object
+    .entries(rule)
+    .reduce((ruleString, [ propName, propValue ]) => {
+      const name = propName
+        .replace(/([A-Z])/g, matches => `-${matches[0].toLowerCase()}`)
 
-    const hasUnits = !Properties.noUnits[propName]
-    const val = hasUnits && typeof propValue === 'number' && propValue + 'px' || propValue
+      const hasUnits = !Properties.noUnits[propName]
+      const val = hasUnits && typeof propValue === 'number' && propValue + 'px' || propValue
 
-    return `${ruleString}\n\t${name}: ${val};`
-  }, '')
+      return `${ruleString}\n\t${name}: ${val};`
+    }, '')
+)
 
-/**
- *
- * @param  { array of objects } rules - array of object styles to add convert into string
- * @return { string } styles objects converted into string as formatted css styles
- */
-export const build = (...rules) => Object
-  .entries(deepMerge(...rules))
-  .reduce((styles, [ selector, rls ]) => (
-    styles + createBlock(selector, rls)
-  ), '')
+export default class Styles{
 
-/**
- * Builds and sets the styles object to the document
- * @param  { string } id - id for the style tag dom node
- * @param  { object } styleObj - hold styles to be added to dom as JS style css
- * @return { void }
- */
-export const add = (id, styleObj) => set(id, build(styleObj))
+  /**
+  * Builds and sets the styles object to the document
+  * @param  { string } id - id for the style tag dom node
+  * @param  { object } styleObj - hold styles to be added to dom as JS style css
+  * @return { void }
+  */
+  add = (id, styleObj) => this.set(id, this.build(styleObj))
 
-export default {
-  add,
-  build,
-  destroy,
-  get,
-  remove,
-  set
+  /**
+  * Gets or creates a style dom node
+  * @param  { string } id - id of the cached style
+  * @return { dom node } - the found or created style dom node
+  */
+  get = id => {
+    this.sheetCache = this.sheetCache || {}
+    if (this.sheetCache[id]) return this.sheetCache[id]
+    const newSheet = document.createElement('style')
+    newSheet.id = id
+    this.sheetCache[id] = newSheet
+    document.head.appendChild(this.sheetCache[id])
+    return this.sheetCache[id]
+  }
+
+  /**
+  * Gets the dom style node and sets its content to be the passed in value
+  * @param  { string } id - id of the cached style
+  * @param  { string } styleStr - contents to update the style with
+  * @return { void }
+  */
+  set = (id, styleStr) => {
+    this.sheetCache = this.sheetCache || {}
+    const styleEl = this.get(id)
+    if (styleEl.styleSheet) styleEl.styleSheet.cssText = styleStr
+    else styleEl.innerHTML = styleStr
+  }
+
+  /**
+  * Builds the styles  from JS css object
+  * @param  { array of objects } rules - array of object styles to add convert into string
+  * @return { string } styles objects converted into string as formatted css styles
+  */
+  build = (...rules) => (
+    Object
+      .entries(deepMerge(...rules))
+      .reduce((styles, [ selector, rls ]) => (
+        styles + createBlock(selector, rls)
+      ), '')
+  )
+
+  /**
+  * Removes all styles nodes from cache and dom
+  * @return {void}
+  */
+  destroy = () => (
+    this.sheetCache = Object
+      .keys(this.sheetCache)
+      .reduce((cache, key) => this.remove(key) && cache, {})
+  )
+
+  /**
+  * Removes style cache item from cache and dom
+  * @param  { string } id - id of the cached style
+  * @return { void }
+  */
+  remove = id => {
+    try {
+      this.sheetCache[id] && document.head.removeChild(this.sheetCache[id])
+    }
+    catch (e){
+      this.sheetCache[id] && this.sheetCache[id].parentNode.removeChild(this.sheetCache[id])
+    }
+    this.sheetCache[id] = undefined
+
+    return true
+  }
+
 }
-

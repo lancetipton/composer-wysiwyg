@@ -27,7 +27,10 @@ const clearEvents = (settings) => {
 
 const clearObj = obj => Object
   .keys(obj)
-  .map(key => delete obj[key])
+  .map(key => {
+    obj[key] = undefined
+    delete obj[key]
+  })
 
 /**
  * Cleans up the Editor object
@@ -40,11 +43,6 @@ const clearEditor = settings => {
   if (Editor.mutObs) clearEvents(settings)
   Editor.composition.end = undefined
   Editor.composition.start = undefined
-  Editor.composition = undefined
-  Editor.onSelChange = undefined
-  Editor.toolsVisible = undefined
-  Editor.caretPos = undefined
-  Editor.onClick = undefined
   try {
     Editor.popper && Editor.popper.destroy && Editor.popper.destroy()
     // Popper does not completely remove the object and refs on destroy

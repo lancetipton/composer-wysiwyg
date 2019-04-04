@@ -42,7 +42,7 @@ const onPopperCreate = (settings, onSelChange) => {
  * @return { void }
  */
 export default (settings, rootEl, cb) => {
-  const { Editor, element, isStatic } = settings
+  const { Editor, element, isStatic, offset } = settings
   if (isStatic) return null
 
   if (Editor.popper){
@@ -51,6 +51,8 @@ export default (settings, rootEl, cb) => {
   }
 
   Editor.caretPos = element.getBoundingClientRect()
+  Editor.caretPos.y = Editor.caretPos.y + offset.y || 0
+  Editor.caretPos.x = Editor.caretPos.x + offset.x || 0
   // Set the def caret pos
   // Will be updated separately, but the popper holds a reference to this object
   // When updating this object it also updates the reference in the popper object

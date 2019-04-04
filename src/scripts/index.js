@@ -4,7 +4,6 @@ import buildPopper from './popper'
 import CleanEditor from './clean_editor'
 import { getSelectionCoords, getSelectedText } from './selection'
 import {
-  CLASSES,
   PARA_SEP_STR,
   FORMAT_BLOCK,
 } from './constants'
@@ -26,6 +25,7 @@ import {
   updateDefaultStyles,
 } from './builders'
 
+const StyleLoader = new Styles()
 
 const onClickEditor = settings => {
   return e => {
@@ -46,7 +46,7 @@ const onClickEditor = settings => {
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { void }
  */
-const onContentChange = (content, settings) => {
+const onContentChange = settings => {
   return (observer) => {
     const { Editor, defParaSep, onChange } = settings
     if (!Editor || !observer || !observer[0]) return null
@@ -65,9 +65,10 @@ const onContentChange = (content, settings) => {
 
     // Check if the tools should be turned on
     if (!Editor.toolsVisible) toggleTools('on', settings)
+
     // Call the passed in on change handler if it exists
     typeof onChange === 'function' &&
-      onChange(content.innerHTML, observer, Editor)
+      onChange(Editor.contentEl.innerHTML, observer, Editor)
   }
 }
 
@@ -84,7 +85,7 @@ const setupEditor = (settings, contentEl, buttons) => {
   Editor.contentEl = contentEl
   Editor.buttons = buttons
   Editor.onClick = onClickEditor(settings)
-  Editor.composition.end = event => onContentChange(Editor.contentEl, settings)([ event ])
+  Editor.composition.end = event => onContentChange(settings)([ event ])
   Editor.destroy = destroy(settings)
 
   addEventListener(Editor.contentEl, 'click', Editor.onClick)
@@ -150,6 +151,7 @@ const onSelChange = settings => {
   return e => {
     const { Editor, isStatic, showOnClick, onSelect } = settings
     if (isStatic) return null
+
     const selection = getSelection()
     // Find the closest dom node to search for the editor dom node
     // text nodes don't have a .closest method, so we need on that does
@@ -157,6 +159,16 @@ const onSelChange = settings => {
       ? selection.anchorNode.parentNode
       : selection.anchorNode
 
+    // Could add updating the link color, but not worth the prof hit
+    // const btnLnk = document.getElementById('composer-button-link')
+    // if (findNode.tagName !== 'A'){
+    //   btnLnk && btnLnk.classList.remove(settings.classes.BTN_SELECTED)
+    // }
+    // else {
+    //   btnLnk && btnLnk.classList.add(settings.classes.BTN_SELECTED)
+    // }
+
+    // button.classList.add(settings.classes.BTN_SELECTED)
     // Check if we have the correct editor for this event
     const isEditor = findNode.closest(`[contenteditable="true"]`) === Editor.contentEl
 
@@ -222,7 +234,7 @@ const updateToolsPos = (settings, selection, selPos) => {
  * @return { void }
  */
 const toggleTools = (toggle, settings) => {
-  const { Editor, isStatic } = settings
+  const { Editor, isStatic, classes } = settings
   if (isStatic) return null
 
   const popperTool = Editor.popper || {}
@@ -230,39 +242,45 @@ const toggleTools = (toggle, settings) => {
   if (!toolsRoot) return null
 
   // Check if the show class is on the root el
-  const toolsVisible = toolsRoot.classList.contains(CLASSES.SHOW)
+  const toolsVisible = toolsRoot.classList.contains(classes.SHOW)
 
   // If toggle is not defined, use the visible flag to set the toggle
   if (toggle === undefined)
     toggle = toolsVisible ? 'off' : 'on'
 
   if (toggle === 'off'){
-    toolsRoot.classList.remove(CLASSES.SHOW)
-    toolsRoot.classList.add(CLASSES.HIDDEN)
+    toolsRoot.classList.remove(classes.SHOW)
+    toolsRoot.classList.add(classes.HIDDEN)
     Editor.toolsVisible = false
     return
   }
 
-  toolsRoot.classList.add(CLASSES.SHOW)
-  toolsRoot.classList.remove(CLASSES.HIDDEN)
+  toolsRoot.classList.add(classes.SHOW)
+  toolsRoot.classList.remove(classes.HIDDEN)
   Editor.toolsVisible = true
 }
 
 const onSave = settings => {
   return e => {
-    settings.onSave && settings.onSave(e, settings.Editor)
+
+
+    settings.onSave && settings.onSave(
+      settings.Editor.contentEl.innerHTML,
+      e,
+      settings.Editor
+    )
       ? null
-      : destroy(settings)
+      : settings.destroyOnSave && destroy(settings)()
   }
 }
 
 const onCancel = settings => {
   return e => {
     // Reset the element content
-    settings.element.innerHTML = settings.content || ''
+    settings.Editor.contentEl.innerHTML = settings.content || ''
     settings.onCancel && settings.onCancel(e, settings.Editor)
       ? null
-      : destroy(settings)
+      : settings.destroyOnCancel && destroy(settings)()
   }
 }
 
@@ -284,7 +302,7 @@ const init = opts => {
   const rootEl = buildRoot(settings, toolbar, contentActions)
 
   // Add editor styles to the dom
-  buildStyles(settings)
+  buildStyles(settings, StyleLoader)
   // Add Editor / WYSIWYG settings to the document
   setupEditor(settings, contentEl, buttons)
   // If not a static editor, build the popper element
@@ -299,8 +317,8 @@ const init = opts => {
  */
 const destroy = (settings) => {
   return () => {
+    StyleLoader.remove(settings.Editor.styleId)
     CleanEditor(settings)
-    Styles.destroy()
     settings = undefined
   }
 }

@@ -1,5 +1,4 @@
 import { defaultTools, registerTools } from './tools'
-import * as Styles from './style_loader'
 import { getStyles, updateDefaultStyles } from './styles'
 import {
   addEventListener,
@@ -10,12 +9,17 @@ import {
   prependChild,
 } from './util'
 import {
-  CLASSES,
   EMPTY_INPUT,
   STYLE_ID,
-  DEF_CONFIG,
+  DEF_SETTINGS,
 } from './constants'
 
+/**
+ * Creates a uuid, unique up to around 20 million iterations. good enough for us
+ * @param  { number } start of the uuid
+ * @return { string } - build uuid
+ */
+const uuid = a => a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g,uuid)
 
 const buildSettings = settings => ({
   ...joinSettings(settings),
@@ -72,7 +76,7 @@ const buildRoot = (settings, toolbar, contentActs) => {
  * @return { array } - joined default and passed in tools
  */
 const buildTools = settings => {
-  const defTools = defaultTools(settings.iconType)
+  const defTools = defaultTools(settings)
   return settings.tools
     ? (settings.tools
       .map(tool => {
@@ -87,12 +91,19 @@ const buildTools = settings => {
       .map(tool => defTools[tool])
 }
 
+const buildStyleId = settings => {
+  settings.Editor.styleId = `${STYLE_ID}-${uuid()}`
+  return settings.Editor.styleId
+}
+
 /**
  * Builds the styles for the WYSIWYG editor
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { void }
  */
-const buildStyles = (settings) => (Styles.add(STYLE_ID, getStyles(settings)))
+const buildStyles = (settings, StyleLoader) => (StyleLoader.add(
+  buildStyleId(settings), getStyles(settings)
+))
 
 
 /**
@@ -169,7 +180,7 @@ const buildContent = (settings, onContentChange, onKeyDown) => {
   contentEl.classList.add(classes.CONTENT)
   Editor.mutObs = getMutationObserver(
     contentEl,
-    debounce(onContentChange(contentEl, settings))
+    debounce(onContentChange(settings))
   )
 
   if (settings.placeholder && !contentEl.innerHTML)
@@ -195,26 +206,29 @@ const buildContent = (settings, onContentChange, onKeyDown) => {
 const joinSettings = (settings = {}) => {
   const styles = settings.styles || {}
   return {
-    ...DEF_CONFIG,
+    ...DEF_SETTINGS,
     ...settings,
-    classes: { ...CLASSES, ...settings.classes },
+    classes: {
+      ...DEF_SETTINGS.classes,
+      ...settings.classes
+    },
     offset: {
-      ...DEF_CONFIG.offset,
+      ...DEF_SETTINGS.offset,
       ...settings.offset,
     },
     tools: [
-      ...DEF_CONFIG.tools,
+      ...DEF_SETTINGS.tools,
       ...(settings.tools || [])
     ],
     styles: {
-      ...DEF_CONFIG.styles,
+      ...DEF_SETTINGS.styles,
       ...styles,
       pop: {
-        ...DEF_CONFIG.styles.pop,
+        ...DEF_SETTINGS.styles.pop,
         ...(styles.pop || {}),
       },
       static: {
-        ...DEF_CONFIG.styles.static,
+        ...DEF_SETTINGS.styles.static,
         ...(styles.static || {}),
       }
     }

@@ -73,7 +73,7 @@ export default class Buttons{
       })
 
     this.cache = undefined
-    this.openDropdown = undefined
+    this.activeDropdown = undefined
   }
   /**
   * Gets the cached tool buttons
@@ -100,15 +100,20 @@ export default class Buttons{
  * @return { void }
  */
   toggleDropdown = button => {
-    this.openDropdown && this.clearDropdown()
+    if (this.activeDropdown === button)
+      return this.clearDropdown()
+    else this.activeDropdown && this.clearDropdown()
+
     const { classes } = this.settings
     button.parentNode.classList.toggle(classes.SHOW)
-    this.openDropdown = button.parentNode.classList.contains(classes.SHOW)
+
+
+    this.activeDropdown = button.parentNode.classList.contains(classes.SHOW)
       ? button
       : undefined
 
-    this.openDropdown &&
-      this.openDropdown.classList.add(classes.BTN_SELECTED)
+    this.activeDropdown &&
+      this.activeDropdown.classList.add(classes.BTN_SELECTED)
   }
 
   /**
@@ -118,12 +123,11 @@ export default class Buttons{
   * @return
   */
   clearDropdown = button => {
-    button = button || this.openDropdown
-
+    button = button || this.activeDropdown
     if (!button) return null
     button.parentNode.classList.remove(this.settings.classes.SHOW)
     button.classList.remove(this.settings.classes.BTN_SELECTED)
-    this.openDropdown = undefined
+    this.activeDropdown = undefined
   }
 
   /**
@@ -192,17 +196,18 @@ export default class Buttons{
     button.innerHTML = tool.icon
     button.title = tool.title
     button.onclick = e => {
-      this.clearDropdown()
-
       if (tool.type === 'dropdown')
         this.toggleDropdown(button)
-      else  tool.action === 'exec'
-        ? exec(tool.state)
-        : tool.action === FORMAT_BLOCK && tool.el
-          ? exec(tool.action, tool.el)
-          : typeof tool.action === 'function'
-            ? tool.action.call(contentEl, tool, button.id, button, e) && contentEl.focus()
-            : null
+      else {
+        this.clearDropdown()
+        tool.action === 'exec'
+          ? exec(tool.state)
+          : tool.action === FORMAT_BLOCK && tool.el
+            ? exec(tool.action, tool.el)
+            : typeof tool.action === 'function'
+              ? tool.action.call(contentEl, tool, this.settings, button, e) && contentEl.focus()
+              : null
+      }
 
       contentEl.focus()
       e.preventDefault()

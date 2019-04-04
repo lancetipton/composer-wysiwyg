@@ -1,22 +1,6 @@
-import { CLASSES } from './constants'
+import { DEF_SETTINGS, DEF_STYLES } from './constants'
 
-const defaultStyles = {
-  colors: {
-    gray: '#bfbec3',
-    white: '#ffffff',
-    ebonyBlack: '#242a35',
-    green: '#4caf50',
-    red: '#fa0719',
-    blue: '#03a9f4'
-  },
-  fonts: {
-    raleway: `"Raleway", sans-serif`
-  },
-  speeds: {
-    showTools: '0.75s ease-in-out'
-  },
-  shadow: '2px 2px 8px rgba(0,0,0,0.2)'
-}
+const defaultStyles = DEF_STYLES
 
 const updateDefaultStyles = styleProps => {
   if (typeof styleProps !== 'object' || Array.isArray(styleProps))
@@ -42,7 +26,7 @@ const updateDefaultStyles = styleProps => {
 }
 
 const getStyles = settings => {
-  const useCls = { ...CLASSES, ...(settings.classes || {}) }
+  const useCls = { ...DEF_SETTINGS.classes, ...(settings.classes || {}) }
   const { colors, speeds, fonts, shadow } = defaultStyles
   const popRules = settings.styles.pop || {}
   const staticRules = settings.styles.static || {}
@@ -113,7 +97,7 @@ const getStyles = settings => {
               }
             },
 
-            [`.${useCls.BTN_WRAP}.${CLASSES.SHOW}`]: {
+            [`.${useCls.BTN_WRAP}.${useCls.SHOW}`]: {
 
               [`.${useCls.BTN_DROP_LIST}`]: {
                 visibility: 'visible',
@@ -208,11 +192,11 @@ const getStyles = settings => {
         }
       },
     },
-    [`.${useCls.ROOT}.${CLASSES.SHOW}`]: {
+    [`.${useCls.ROOT}.${useCls.SHOW}`]: {
       opacity: 1,
       visibility: 'visible',
     },
-    [`.${useCls.ROOT}.${CLASSES.HIDDEN}`]: {
+    [`.${useCls.ROOT}.${useCls.HIDDEN}`]: {
       opacity: 0,
       visibility: 'visible',
     },

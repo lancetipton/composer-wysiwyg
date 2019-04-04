@@ -1,18 +1,20 @@
 const onChange = (html) => {
-  // console.log('------------------on change------------------')
-  // console.log(html)
+  console.log('on change')
+  console.log(html)
 }
 
 // Calls composer.destroy() after this method CB
 // return true from onSave, will stop destroy from being called
-const onSave = () => {
-  console.log('------------------I am save------------------')
+const onSave = (html) => {
+  console.log('on save')
+  console.log(html)
 }
 
 // Calls composer.destroy() after this method CB
 // return true from onCancel, will stop destroy from being called
 const onCancel = () => {
-  console.log('------------------I am cancel------------------')
+  console.log('on cancel')
+
 }
 
 const options = {
@@ -35,12 +37,12 @@ const options = {
     'link',
     'image'
   ],
-  offset: {
-
-  },
+  offset: {},
   onChange: onChange,
   onSave: onSave,
+  destroyOnSave: false,
   onCancel: onCancel,
+  destroyOnCancel: false,
   showOnClick: true,
   iconType: 'fas',
   styleWithCSS: true,
@@ -48,13 +50,25 @@ const options = {
   popper: {}
 }
 
+let popComp
+let hasDblClk = false
 const buildPopEditor = () => {
-  const popEditor =  document.getElementById('editor-pop')
-  if (!popEditor) return console.warn('Can not find dom node with id "#editor-pop"')
+  const popEditorEl =  document.getElementById('editor-pop')
+  if (!popEditorEl)
+    return console.warn('Can not find dom node with id "#editor-pop"')
+
   const popOpts = Object.assign({}, options)
-  popOpts.element = popEditor
+  popOpts.element = popEditorEl
   popOpts.content = 'I am the pop editor'
-  const popComp = window.Composer.init(popOpts)
+  popComp = window.Composer.init(popOpts)
+
+  !hasDblClk && popEditorEl.addEventListener('dblclick', e => {
+    if (popComp.isActive) return null
+    popComp = buildPopEditor()
+  })
+
+  hasDblClk = true
+
   return popComp
 }
 
@@ -72,7 +86,7 @@ const buildStaticEditor = () => {
 }
 
 const init = () => {
-  const popComp = buildPopEditor()
+  popComp = buildPopEditor()
   const staticComp = buildStaticEditor()
 }
 
