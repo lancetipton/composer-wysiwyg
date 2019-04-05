@@ -3,6 +3,7 @@ export const PARA_SEP_STR = 'defaultParagraphSeparator'
 export const EMPTY_INPUT = ''
 export const FORMAT_BLOCK = 'formatBlock'
 export const STYLE_ID = 'composer-stylesheet-rules'
+export const CODE_EDITOR_ID = 'composer-code-edit'
 
 export const DEF_STYLES = Object.freeze({
   colors: Object.freeze({
@@ -42,6 +43,7 @@ export const DEF_SETTINGS =  Object.freeze({
     BTN_CONTENT: 'composer-content-action',
     BTN_SAVE: 'composer-btn-save',
     BTN_CANCEL: 'composer-btn-cancel',
+    CODE_EDITOR: CODE_EDITOR_ID
   }),
   styles: Object.freeze({
     pop: {},
@@ -54,4 +56,5 @@ export const DEF_SETTINGS =  Object.freeze({
   tools: [],
   showOnClick: true,
   styleWithCSS: false,
+  codeEditActive: false
 })

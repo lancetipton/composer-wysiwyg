@@ -1,6 +1,7 @@
 import { exec } from './util'
 import { FORMAT_BLOCK } from './constants'
 import { getSelection } from './selection'
+import { toggleCodeEditor } from './code_editor'
 
 let addedTools = {}
 const windowPrompt = ({ remove, message, action, settings, button }) => {
@@ -13,16 +14,16 @@ const windowPrompt = ({ remove, message, action, settings, button }) => {
 
     if (checkNode.tagName === 'A')
       return exec(remove, url)
-    // button.classList.add(settings.classes.BTN_SELECTED)
+
+    button.classList.add(settings.classes.BTN_SELECTED)
   }
 
   const url = window.prompt(message)
   if (url) exec(action, url)
 }
 
-const buildIcon = (type, text) => {
-  return `<span class="btn-icon ${type}">${text || ''}</span>`
-}
+
+const buildIcon = (type, text) => `<span class="btn-icon ${type}">${text || ''}</span>`
 
 const registerTools = tools => {
   addedTools = {
@@ -233,7 +234,11 @@ const defaultTools = settings => {
       icon: buildIcon(`${faType} fa-code`),
       title: 'Code',
       el: '<pre>',
-      action: FORMAT_BLOCK
+      action: (tool, settings, button, e) => toggleCodeEditor({
+        tool,
+        settings,
+        button
+      })
     },
     line: {
       icon: buildIcon(`${faType} fa-arrows-alt-h`),

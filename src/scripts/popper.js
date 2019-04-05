@@ -30,7 +30,6 @@ const onPopperCreate = (settings, onSelChange) => {
     const caretEl = element.firstChild || element
     setCaretPosition(caretEl, 0)
     popper && popper.onCreate && popper.onCreate(popper, settings)
-    addEventListener(document, 'selectionchange', Editor.onSelChange)
     element.focus()
   }
 }

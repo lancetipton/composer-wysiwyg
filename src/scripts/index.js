@@ -48,6 +48,8 @@ const onClickEditor = settings => {
  */
 const onContentChange = settings => {
   return (observer) => {
+    if (settings.codeEditActive) return null
+
     const { Editor, defParaSep, onChange } = settings
     if (!Editor || !observer || !observer[0]) return null
 
@@ -97,7 +99,24 @@ const setupEditor = (settings, contentEl, buttons) => {
 }
 
 /**
- * Handels input from the keyboard
+ * Checks if buttons should be active based on dom node closest to the selection
+ * @param  { dom node } findNode - node closest to the selection
+ * @param  { object } Editor - WYSIWYG config object
+ * @return { void }
+ */
+const checkActiveButtons = (findNode, Editor, selCls) => {
+  const lnkId = 'composer-button-link'
+  const { buttons: { cache } } = Editor
+  if (!cache[lnkId] || !cache[lnkId].button) return
+
+  if (findNode.tagName !== 'A')
+    cache[lnkId].button.classList.remove(selCls)
+  else
+    cache[lnkId].button.classList.add(selCls)
+}
+
+/**
+ * Handles input from the keyboard
  * @param  { object } event - browser window event
  * @return { boolean } - should do default browser behavior
  */
@@ -149,28 +168,19 @@ const onKeyDown = settings => {
  */
 const onSelChange = settings => {
   return e => {
-    const { Editor, isStatic, showOnClick, onSelect } = settings
-    if (isStatic) return null
-
+    const { Editor, isStatic, showOnClick, onSelect, classes } = settings
     const selection = getSelection()
     // Find the closest dom node to search for the editor dom node
     // text nodes don't have a .closest method, so we need on that does
     const findNode = selection.anchorNode.nodeType === 3
       ? selection.anchorNode.parentNode
       : selection.anchorNode
-
-    // Could add updating the link color, but not worth the prof hit
-    // const btnLnk = document.getElementById('composer-button-link')
-    // if (findNode.tagName !== 'A'){
-    //   btnLnk && btnLnk.classList.remove(settings.classes.BTN_SELECTED)
-    // }
-    // else {
-    //   btnLnk && btnLnk.classList.add(settings.classes.BTN_SELECTED)
-    // }
-
-    // button.classList.add(settings.classes.BTN_SELECTED)
     // Check if we have the correct editor for this event
     const isEditor = findNode.closest(`[contenteditable="true"]`) === Editor.contentEl
+    // Check if any buttons should be active
+    isEditor && checkActiveButtons(findNode, Editor, classes.BTN_SELECTED)
+
+    if (isStatic) return null
 
     // If is active not defined, check if its the active editor
     if (Editor.isActive === undefined)
@@ -262,8 +272,6 @@ const toggleTools = (toggle, settings) => {
 
 const onSave = settings => {
   return e => {
-
-
     settings.onSave && settings.onSave(
       settings.Editor.contentEl.innerHTML,
       e,
@@ -307,6 +315,8 @@ const init = opts => {
   setupEditor(settings, contentEl, buttons)
   // If not a static editor, build the popper element
   !settings.isStatic && buildPopper(settings, rootEl, updateToolsPos)
+
+  addEventListener(document, 'selectionchange', settings.Editor.onSelChange)
 
   return settings.Editor
 }
