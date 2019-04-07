@@ -1,7 +1,6 @@
 # ComposeIt - WYSIWYG
 
-### Why
-<hr>
+## Why
 
   * Could not find a WYSIWYG that was small, and fit my needs
   * The closest I found was [pell.js](https://github.com/jaredreich/pell)
@@ -9,16 +8,14 @@
     * At first I just forked pell.js, but eventually I just re-wrote everything
     * Also ended up adding a few more features
 
-### Minimum Browser Support ( nothing guaranteed )
-<hr>
+## Minimum Browser Support ( nothing guaranteed )
 
   * Chrome 5
   * Firefox 4
   * Safari 5
   * Opera 11.6
 
-### Install
-<hr>
+## Install
 
   * Download the repo
     ```js
@@ -49,8 +46,7 @@
         </script>
     ```
 
-### Dependencies
-<hr>
+## Dependencies
 
   * [Font Awesome](http://fontawesome.com)
   * [Popper.js](https://popper.js.org)
@@ -59,8 +55,7 @@
       yarn install popper.js @fortawesome/fontawesome-free
     ```
 
-### Features
-<hr>
+## Features
 
   * Two Editor Types
     * Static
@@ -83,8 +78,7 @@
   * Lots of other custom settings
     * See settings section
 
-### Theme
-<hr>
+## Theme
 
   * Defaults
     ```js
@@ -125,8 +119,7 @@
         })
       ```
 
-### Tools
-<hr>
+## Tools
 
   * **Important** Only tools passed into the `ComposeIt.init` call will be added to the editor, unless `settings.allowDefTools` is set to `true`
   
@@ -172,8 +165,7 @@
     * link
     * image
 
-### Custom Tools
-<hr>
+## Custom Tools
 
 
   * Custom tool properties
@@ -285,8 +277,7 @@
         })
       ```
 
-### Settings
-<hr>
+## Settings
 
 
   * Overwrite default settings
@@ -430,8 +421,7 @@
       }
     ```
 
-### Styles
-<hr>
+## Styles
 
 
   * Each editor gets its own style id, which applies only to that editor
@@ -481,8 +471,7 @@
     * All other styles till apply
   
 
-### ComposeIt API Methods
-<hr>
+## ComposeIt API Methods
 
   * init
     * Example 
@@ -517,8 +506,7 @@
   * registerTheme
     * Example - see example in the theme section above
 
-### Editor API Methods
-<hr>
+## Editor API Methods
 
   * Returned from the **ComposeIt.init** method
 
@@ -563,8 +551,7 @@
   * Editor methods are bound to Dom Events
     * If you try to override the methods of the editor, you're going to have a bad time
 
-### Full Example
-<hr>
+## Full Example
 
   ```html
     <head>
