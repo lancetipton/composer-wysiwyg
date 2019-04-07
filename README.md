@@ -42,7 +42,7 @@
         // ComposeIt will be available on the window 
         <script>
           const composeIt = window.ComposeIt
-          Const Editor = composeIt.init()
+          const Editor = composeIt.init({ ...settings })
         </script>
     ```
 
@@ -179,7 +179,7 @@
         * Must match one of the keys from the `Default tools` section above to override that tool
         * Or used to define a custom tool when registering it
       * el ( String )
-        * html string element; i.e. '<p>'
+        * html string element; i.e. ```"<p>"```
         * passed to `document.execCommand` when `action` property is `formatBlock || insertHTML`
       * cmd ( String )
         * If set to 'dropdown', will toggle its sub-tools dropdown if it exists
