@@ -5,7 +5,7 @@
   * The closest I found was [pell.js](https://github.com/jaredreich/pell)
     * pell.js is simple and straight forward, but only has a static layout. I needed a pop-up layout
     * At first I just forked pell.js, but eventually I just re-wrote everything
-    * I ended up adding a few more features
+    * Also ended up adding a few more features
 
 ### Minimum Browser Support ( nothing guaranteed )
   * Chrome 5
@@ -28,8 +28,8 @@
     ```js
       // * Import into code
         import ComposeIt from 'ComposeIt'
-        // Of only the methods you need
-        import { exec, init, registerTools, registerTheme, } from 'ComposeIt'
+        // Or only the methods you need
+        import { exec, init, registerTools, registerTheme } from 'ComposeIt'
 
       // * Require code
         const ComposeIt = require('ComposeIt')
@@ -160,8 +160,8 @@
     * link
     * image
 
-  * Add custom tool **Global**
-    * **Must be called before init method**
+  * Add custom tool **Global** ( Must be called before init method )
+
       ```js
         ComposeIt.registerTools({
           alert: {
@@ -176,9 +176,9 @@
       ```
 
   * Add custom tool to editor instance **Only**
-    * **Must be called before init method**
+
       ```js
-        ComposeIt.ini({
+        ComposeIt.init({
           // ...other settings
           tools: [
             // ...other tools
@@ -195,8 +195,8 @@
         })
       ```
 
-  * Overwrite default tool **Global**
-    * **Must be called before init method**
+  * Overwrite default tool **Global** ( Must be called before init method )
+
       ```js
         ComposeIt.registerTools({
           link: {
@@ -213,7 +213,8 @@
       ```
 
   * Overwrite default tool for editor instance **Only**
-    * name property in **REQUIRED**
+    * name property is **REQUIRED**
+
       ```js
         ComposeIt.init({
           // ...other settings
@@ -301,7 +302,7 @@
           static: {},
         },
 
-        // Offsets the editor pop-up relative to the cursor - ( Pop Up Only )
+        // Offsets the editor pop-up relative to the cursor - ( Pop Editor )
         offset: {
           x: 0,
           y: 35
@@ -320,7 +321,7 @@
           //... Or an object as defined in the `editor instance` tools sections above
         ],
 
-        // Show the Editor tools when clicking on the edit content element - ( Pop Up Only )
+        // Show the Editor tools when clicking on the edit content element - ( Pop Editor )
         showOnClick: true,
 
         // Style the content with inline css
@@ -422,7 +423,7 @@
   * Styles are applied by editor type
     * Static editor will only get static styles, same for pop up editor
 
-  * Example => `settings.styles.pop = { editorWrp: { backgroundColor: '#1a1a1a' } }`
+  * Example - `settings.styles.pop = { editorWrp: { backgroundColor: '#1a1a1a' } }`
     * Only the editorWrp backgroundColor style will be over written for pop up editors
     * All other styles till apply
   
@@ -430,7 +431,7 @@
 ### ComposeIt API Methods
 
   * init
-    * Example => 
+    * Example 
       ```js
         const settings = {
           tools: [ 'redo', 'undo', 'bold', 'italic', 'underline' ],
@@ -445,7 +446,7 @@
       * See more information in the Editor API methods section below 
 
   * exec
-    * Example =>
+    * Example
       ```js
         ComposeIt.exec('CreateLink', 'www.google.com')
       ```
@@ -457,10 +458,10 @@
         * Value to be passed to the exec command ( Based on param 1 )
 
   * registerTools
-    * Example => see example in the tools section above
+    * Example - see example in the tools section above
 
   * registerTheme
-    * Example => see example in the theme section above
+    * Example - see example in the theme section above
 
 ### Editor API Methods
 
@@ -479,7 +480,7 @@
   * destroy ( Function )
     * Cleans up the editor and event handlers
 
-  * isActive ( Bool ) - ( Pop Up Only )
+  * isActive ( Bool ) - ( Pop Editor )
     * If the pop up editor is active
 
   * onClick ( Function )
@@ -497,10 +498,10 @@
   * popper ( Object )
     * object returned when calling `new Popper` method in popper js
 
-  * toggleTools ( Function ) - ( Pop Up Only )
+  * toggleTools ( Function ) - ( Pop Editor )
     * method to turn the Editor tools on or off
 
-  * updateToolsPos ( Function ) - ( Pop Up Only )
+  * updateToolsPos ( Function ) - ( Pop Editor )
     * method to update the position of the Editor tools
     
 ** Editor API Notes**

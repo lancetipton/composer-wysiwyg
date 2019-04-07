@@ -375,6 +375,12 @@ const init = opts => {
   return settings.Editor
 }
 
+export default {
+  exec,
+  init,
+  registerTools,
+  registerTheme,
+}
 
 export {
   exec,
