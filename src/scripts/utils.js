@@ -56,6 +56,12 @@ export const noContent = el => Boolean(!el || (
   ))
 )
 
+
+export const checkCall = (method, ...params) => {
+  if (typeof method === 'function')
+    return method(...params)
+}
+
 /**
  * Checks the current list state for UL or OL
  * If in list state, then disable tools not allowed for list items

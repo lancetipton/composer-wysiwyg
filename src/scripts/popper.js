@@ -1,34 +1,17 @@
 import Popper from 'popper.js'
 import { setCaretPosition } from './selection'
-import { addEventListener } from './util'
-
-const buildPopperOpts = (settings, cb) => ({
-  removeOnDestroy: true,
-  placement: 'bottom-start',
-  onCreate: cb(settings),
-  ...settings.popper,
-  modifiers: {
-    offset: { offset: 5 },
-    keepTogether: { enabled: true },
-    preventOverflow: {
-      enabled: true,
-      padding: 10,
-      escapeWithReference: false,
-    },
-    ...(settings.popper && settings.popper.modifiers || {})
-  },
-})
 
 /**
  * Callback called when a popper.js instance is created
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { function }
  */
-const onPopperCreate = (settings, onSelChange) => {
+const onPopperCreate = settings => {
   return (instance) => {
-    const { Editor, element, popper } = settings
+    const { element, popper } = settings
     const caretEl = element.firstChild || element
     setCaretPosition(caretEl, 0)
+    // Check if the popper onCreate method exists and call it
     popper && popper.onCreate && popper.onCreate(popper, settings)
     element.focus()
   }
@@ -43,32 +26,35 @@ const onPopperCreate = (settings, onSelChange) => {
 export default (settings, rootEl, cb) => {
   const { Editor, element, isStatic, offset } = settings
   if (isStatic) return null
-
+  // Check if a popper already exists, and is so kill it
   if (Editor.popper){
     Editor.popper.destroy()
     Editor.popper = null
   }
 
-  Editor.caretPos = element.getBoundingClientRect()
-  Editor.caretPos.y = Editor.caretPos.y + offset.y || 0
-  Editor.caretPos.x = Editor.caretPos.x + offset.x || 0
+  settings.caretPos = element.getBoundingClientRect()
+  settings.caretPos.y = settings.caretPos.y + offset.y || 0
+  settings.caretPos.x = settings.caretPos.x + offset.x || 0
   // Set the def caret pos
   // Will be updated separately, but the popper holds a reference to this object
   // When updating this object it also updates the reference in the popper object
   const ref = {
     getBoundingClientRect: () => ({
-      top: Editor.caretPos.y,
-      right: Editor.caretPos.x,
-      bottom: Editor.caretPos.y,
-      left: Editor.caretPos.x,
-      width: Editor.caretPos.width,
-      height: Editor.caretPos.height,
+      top: settings.caretPos.y,
+      right: settings.caretPos.x,
+      bottom: settings.caretPos.y,
+      left: settings.caretPos.x,
+      width: settings.caretPos.width,
+      height: settings.caretPos.height,
     }),
     clientWidth: element.clientWidth,
     clientHeight: element.clientHeight,
   }
-
-  const popperProps = buildPopperOpts(settings, onPopperCreate)
+  // Copy the popper settings
+  const popperProps = { ...settings.popper }
+  // Overwrite the onCreate method if it exists
+  popperProps.onCreate = onPopperCreate(settings)
+  // Create the new popper
   Editor.popper = new Popper(ref, rootEl, popperProps)
   cb(settings)
 }

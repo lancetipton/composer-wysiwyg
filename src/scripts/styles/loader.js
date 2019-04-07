@@ -72,7 +72,7 @@ const createRules = rule => (
     }, '')
 )
 
-export default class Styles{
+export default class StylesLoader {
 
   /**
   * Builds and sets the styles object to the document

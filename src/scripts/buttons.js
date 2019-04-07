@@ -5,18 +5,18 @@ import {
   queryCommandState,
   createElement,
   exec
-} from './util'
-import { BTN_ID_EXT, FORMAT_BLOCK } from './constants'
+} from './utils'
+import { BTN_ID_EXT, FORMAT_BLOCK, INSERT_HTML } from './constants'
 
 /**
- * Updates the selected state of the a button dom node
+ * Updates the selected cmd of the a button dom node
  * @param  { dom node } button - dom node to update
- * @param  { string } state - command to check is active
+ * @param  { string } cmd - command to check is active
  * @param  { selectedClass } selected - class name for a selected / acitve button
  * @return {void}
  */
-const buildHandler = (button, state, selectedClass) => (() => (
-  button.classList[queryCommandState(state) ? 'add' : 'remove'](selectedClass)
+const buildHandler = (button, cmd, selectedClass) => (() => (
+  button.classList[queryCommandState(cmd) ? 'add' : 'remove'](selectedClass)
 ))
 
 /**
@@ -27,7 +27,7 @@ const buildHandler = (button, state, selectedClass) => (() => (
  * @return { object } - contains data to access all parts of the button
  */
 const buildState = (buttonObj, contentEl, selCls) => {
-  const handler = buildHandler(buttonObj.button, buttonObj.tool.state, selCls)
+  const handler = buildHandler(buttonObj.button, buttonObj.tool.cmd, selCls)
   addEventListener(contentEl, 'keyup', handler)
   addEventListener(contentEl, 'mouseup', handler)
   addEventListener(buttonObj.button, 'click', handler)
@@ -37,225 +37,238 @@ const buildState = (buttonObj, contentEl, selCls) => {
   return buttonObj
 }
 
-export default class Buttons{
+/**
+* Builds a tool button contained within a tool dropdown
+* @param  {any} tool - data used to build the button
+* @param  { object } classes - class names set for the editor
+* @param  { dom node } contentEl - element being edited
+* @return { object } - container dom node of the button and its parent Li wrapper
+*/
+const builSubItem = (BtnCls, tool, contentEl, settings) => {
+  const li = createElement('li')
+  const btn = buildButton(BtnCls, tool, contentEl, settings)
+  appendChild(li, btn)
+  return { btn, li }
+}
 
-  constructor(settings){
-    if (!settings) throw new Error(`Settings object is required for Buttons class`)
-    this.settings = settings
-  }
+/**
+* Builds tools dropdown to show sub tools from the parent tool
+* @param  { object } buttons - currently build buttons
+* @param  { object } buttonObj - button being built
+* @param  { object } classes - class names set for the editor
+* @param  { dom node } contentEl - element being edited
+* @param  { dom node } btnGrp - wrapper to hold the dropdown
+* @return { object } - updated passed in buttons object
+*/
+const buildDropDown = (BtnCls, buttons, buttonObj, contentEl, btnGrp, settings) => {
+  const { classes } = settings
+  const { button, tool } = buttonObj
+  const btnList = createElement('ul')
+  const btnWrap = createElement('div')
+  btnList.className = classes.BTN_DROP_LIST
+  btnWrap.className = classes.BTN_WRAP
+  appendChild(btnWrap, button)
 
-  cache = {}
-  openDropdown = undefined
+  Object.keys(tool.options).map(key => {
+    const option = tool.options[key]
+    const { btn, li } = builSubItem(BtnCls, option, contentEl, settings)
 
-  /**
-  * Builds an id for a tool based on passed in string
-  * @param  { string } str - used to build the id
-  * @return { string } build id for the tool
-  */
-  buildId = str => `${BTN_ID_EXT}-${str.replace(/ /g, '-').toLowerCase()}`
-  /**
-  * Clears the current tool buttons in cache
-  * @return {void}
-  */
-  clearCache = () => {
-    this.cache && Object
-      .entries(this.cache)
-      .map(([ id, { button, contentEl, handler } ]) => {
-        if (typeof handler === 'function') {
-          contentEl && removeEventListener(contentEl, 'keyup', handler)
-          contentEl && removeEventListener(contentEl, 'mouseup', handler)
-          button && removeEventListener(button, 'click', handler)
-        }
-        button = undefined
-        contentEl = undefined
-        handler = undefined
-        this.cache[id] = undefined
-      })
+    appendChild(btnList, li)
+    const id = btn.id
+    buttons[id] = { tool: option, button: btn }
+    if (option.cmd)
+      buttons[id] = buildState(buttons[id], contentEl, classes.BTN_SELECTED)
+  })
+  appendChild(btnWrap, btnList)
+  appendChild(btnGrp, btnWrap)
 
-    this.cache = undefined
-    this.activeDropdown = undefined
-  }
-  /**
-  * Gets the cached tool buttons
-  * @return { object } - this.cache
-  */
-  getCache = () => this.cache
+  return buttons
+}
 
-  /**
-  * Toggles disabled on tools buttons based on passed in state
-  * @param  { boolean } state - what the disabled state should be
-  * @param  { array } ids - goupe of button IDs to disable
-  * @return { void }
-  */
-  disableToggle = (state, ids) => {
-    ids && ids.map(id => {
-      if (!this.cache[id] || !this.cache[id].button) return
-      this.cache[id].button.disabled = state
-    })
-  }
+/**
+* Builds an id for a tool based on passed in string
+* @param  { string } str - used to build the id
+* @return { string } build id for the tool
+*/
+const buildId = str => `${BTN_ID_EXT}-${str.replace(/ /g, '-').toLowerCase()}`
 
-  /**
- * Toggles the SHOW class on a tool dropdown
- * @param  { dom node } button - node to toggle the dropdown on
- * @return { void }
- */
-  toggleDropdown = button => {
-    if (this.activeDropdown === button)
-      return this.clearDropdown()
-    else this.activeDropdown && this.clearDropdown()
-
-    const { classes } = this.settings
-    button.parentNode.classList.toggle(classes.SHOW)
-
-
-    this.activeDropdown = button.parentNode.classList.contains(classes.SHOW)
-      ? button
-      : undefined
-
-    this.activeDropdown &&
-      this.activeDropdown.classList.add(classes.BTN_SELECTED)
-  }
-
-  /**
-  * Hides a tool dropdown if its open
-  * @param  { dom node } button - parent button of the drop down
-  * @param  { object } classes - class names set for the editor
-  * @return
-  */
-  clearDropdown = button => {
-    button = button || this.activeDropdown
-    if (!button) return null
-    button.parentNode.classList.remove(this.settings.classes.SHOW)
-    button.classList.remove(this.settings.classes.BTN_SELECTED)
-    this.activeDropdown = undefined
-  }
-
-  /**
-  * Builds a tool button contained within a tool dropdown
-  * @param  {any} tool - data used to build the button
-  * @param  { object } classes - class names set for the editor
-  * @param  { dom node } contentEl - element being edited
-  * @return { object } - container dom node of the button and its parent Li wrapper
-  */
-  builSubItem = (tool, contentEl) => {
-    const li = createElement('li')
-    const btn = this.buildButton(tool, contentEl)
-    appendChild(li, btn)
-    return { btn, li }
-  }
-
-  /**
- * Builds tools dropdown to show sub tools from the parent tool
- * @param  { object } buttons - currently build buttons
- * @param  { object } buttonObj - button being built
- * @param  { object } classes - class names set for the editor
- * @param  { dom node } contentEl - element being edited
- * @param  { dom node } btnGrp - wrapper to hold the dropdown
- * @return { object } - updated passed in buttons object
- */
-  buildDropDown = (buttons, buttonObj, contentEl, btnGrp) => {
-    const { classes } = this.settings
-    const { button, tool } = buttonObj
-    const btnList = createElement('ul')
-    const btnWrap = createElement('div')
-    btnList.className = classes.BTN_DROP_LIST
-    btnWrap.className = classes.BTN_WRAP
-    appendChild(btnWrap, button)
-
-    Object.keys(tool.options).map(key => {
-      const option = tool.options[key]
-      const { btn, li } = this.builSubItem(option, contentEl)
-
-      appendChild(btnList, li)
-      const id = btn.id
-      buttons[id] = { tool: option, button: btn }
-      if (option.state)
-        buttons[id] = buildState(buttons[id], contentEl, classes.BTN_SELECTED)
-    })
-    appendChild(btnWrap, btnList)
-    appendChild(btnGrp, btnWrap)
-
-    return buttons
-  }
-
-  /**
- * Builds the dom nodes for buttons using an 'a' element
- * Add the onclick tool, and icon
- * @param  { object } tool - tool corresponding to the button dom node
- * @param  { string } id - identifier for the button dom node
- * @param  { object } classes - class names set for the editor
- * @param  { dom node } contentEl - holds the editable contentEl
- * @return { dom node } - built button dom node
- */
-  buildButton = (tool, contentEl) => {
-    const { classes } =  this.settings
-    const button = createElement('a')
-    button.className = classes.BTN_TOOL
-    button.id = this.buildId(tool.title)
-    button.href = 'javascript:void(0)'
-    button.innerHTML = tool.icon
-    button.title = tool.title
-    button.onclick = e => {
-      if (tool.type === 'dropdown')
-        this.toggleDropdown(button)
-      else {
-        this.clearDropdown()
-        tool.action === 'exec'
-          ? exec(tool.state)
-          : tool.action === FORMAT_BLOCK && tool.el
-            ? exec(tool.action, tool.el)
-            : typeof tool.action === 'function'
-              ? tool.action.call(contentEl, tool, this.settings, button, e) && contentEl.focus()
-              : null
-      }
-
-      contentEl.focus()
-      e.preventDefault()
+/**
+* Builds the dom nodes for buttons using an 'a' element
+* Add the onclick tool, and icon
+* @param  { object } tool - tool corresponding to the button dom node
+* @param  { string } id - identifier for the button dom node
+* @param  { object } classes - class names set for the editor
+* @param  { dom node } contentEl - holds the editable contentEl
+* @return { dom node } - built button dom node
+*/
+const buildButton = (BtnCls, tool, contentEl, settings) => {
+  const { classes, Editor } =  settings
+  const button = createElement('a')
+  button.className = classes.BTN_TOOL
+  button.id = buildId(tool.title)
+  button.href = 'javascript:void(0)'
+  button.innerHTML = tool.icon
+  button.title = tool.title
+  button.onclick = e => {
+    if (tool.cmd === 'dropdown')
+      BtnCls.toggleDropdown(button)
+    else {
+      BtnCls.clearDropdown()
+      tool.action === 'exec'
+        ? exec(tool.cmd)
+        : (tool.action === FORMAT_BLOCK || tool.action === INSERT_HTML) && tool.el
+          ? exec(tool.action, tool.el)
+          : typeof tool.action === 'function'
+            ? tool.action.call(Editor.contentEl, tool, settings, button, e) && contentEl.focus()
+            : null
     }
 
-    return button
+    contentEl.focus()
+    e.preventDefault()
   }
 
-  /**
-  * Builds the button dom nodes based on each tool, and adds event listeners
-  * @param  { array } tools - tools to be added to the toolbar
-  * @param  { dom node } toolbar - holds all the tool buttons for the editor
-  * @param  { object } classes - class names set for the editor
-  * @param  { dom node } contentEl - element being edited
-  * @return { object } - container the button dom node and corisponding tool object
+  return button
+}
+
+/**
+* Builds the button dom nodes based on each tool, and adds event listeners
+* @param  { array } tools - tools to be added to the toolbar
+* @param  { dom node } toolbar - holds all the tool buttons for the editor
+* @param  { object } classes - class names set for the editor
+* @param  { dom node } contentEl - element being edited
+* @return { object } - container the button dom node and corisponding tool object
+*/
+export const buildToolBtns = (BtnCls, tools, toolbar, settings) => {
+  const { classes, Editor: { contentEl } } =  settings
+
+  const btnGrp = createElement('div')
+  btnGrp.className = classes.BTN_GRP
+  appendChild(toolbar, btnGrp)
+  // Add buttons to the cache to be accessed later
+  BtnCls.cache = tools.reduce((buttons, tool) => {
+    if (!tool || !tool.title) return buttons
+    const button = buildButton(BtnCls, tool, contentEl, settings)
+    const id = button.id
+    buttons[id] = { button, tool }
+
+    if (tool.cmd === 'dropdown' && tool.options)
+      return buildDropDown(
+        BtnCls,
+        buttons,
+        buttons[id],
+        contentEl,
+        btnGrp,
+        settings
+      )
+    else if (tool.cmd)
+      buttons[id] = buildState(
+        buttons[id],
+        contentEl,
+        classes.BTN_SELECTED
+      )
+
+    appendChild(btnGrp, buttons[id].button)
+
+    return buttons
+  }, {})
+
+  return BtnCls.cache
+}
+
+
+const createButtons = settings => {
+  if (!settings) throw new Error(`Settings object is required for Buttons class`)
+
+
+  return class Buttons{
+
+    constructor(){
+    }
+
+    cache = {}
+
+    // --------------
+    /**
+    * Clears the current tool buttons in cache
+    * @return {void}
+    */
+    clearCache = () => {
+      this.cache && Object
+        .entries(this.cache)
+        .map(([ id, { button, contentEl, handler } ]) => {
+          if (typeof handler === 'function') {
+            contentEl && removeEventListener(contentEl, 'keyup', handler)
+            contentEl && removeEventListener(contentEl, 'mouseup', handler)
+            button && removeEventListener(button, 'click', handler)
+          }
+          button = undefined
+          contentEl = undefined
+          handler = undefined
+          this.cache[id] = undefined
+        })
+
+      this.cache = undefined
+      this.activeDropdown = undefined
+    }
+    /**
+    * Gets the cached tool buttons
+    * @return { object } - this.cache
+    */
+    getCache = () => this.cache
+
+    /**
+    * Toggles disabled on tools buttons based on passed in state
+    * @param  { boolean } state - what the disabled state should be
+    * @param  { array } ids - group of button IDs to disable
+    * @return { void }
+    */
+    disableToggle = (state, ids) => {
+      ids && ids.map(id => {
+        if (!this.cache[id] || !this.cache[id].button) return
+        this.cache[id].button.disabled = state
+      })
+    }
+
+    /**
+    * Hides a tool dropdown if its open
+    * @param  { dom node } button - parent button of the drop down
+    * @param  { object } classes - class names set for the editor
+    * @return
+    */
+    clearDropdown = button => {
+      button = button || this.activeDropdown
+      if (!button) return null
+      button.parentNode.classList.remove(settings.classes.SHOW)
+      button.classList.remove(settings.classes.BTN_SELECTED)
+      this.activeDropdown = undefined
+    }
+
+    // --------------
+
+    /**
+  * Toggles the SHOW class on a tool dropdown
+  * @param  { dom node } button - node to toggle the dropdown on
+  * @return { void }
   */
-  buildToolBtns = (tools, toolbar, contentEl) => {
-    const { classes } =  this.settings
-    const btnGrp = createElement('div')
-    btnGrp.className = classes.BTN_GRP
-    appendChild(toolbar, btnGrp)
-    // Add buttons to the cache to be accessed later
-    this.cache = tools.reduce((buttons, tool) => {
-      if (!tool || !tool.title) return buttons
-      const button = this.buildButton(tool, contentEl)
-      const id = button.id
-      buttons[id] = { button, tool }
+    toggleDropdown = button => {
+      if (this.activeDropdown === button)
+        return this.clearDropdown()
+      else this.activeDropdown && this.clearDropdown()
 
-      if (tool.type === 'dropdown' && tool.options)
-        return this.buildDropDown(
-          buttons,
-          buttons[id],
-          contentEl,
-          btnGrp
-        )
-      else if (tool.state)
-        buttons[id] = buildState(
-          buttons[id],
-          contentEl,
-          classes.BTN_SELECTED
-        )
+      const { classes } = settings
+      button.parentNode.classList.toggle(classes.SHOW)
 
-      appendChild(btnGrp, buttons[id].button)
 
-      return buttons
-    }, {})
+      this.activeDropdown = button.parentNode.classList.contains(classes.SHOW)
+        ? button
+        : undefined
 
-    return this.cache
+      this.activeDropdown &&
+        this.activeDropdown.classList.add(classes.BTN_SELECTED)
+    }
+
   }
 
 }
+
+export default createButtons

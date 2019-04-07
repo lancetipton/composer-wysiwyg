@@ -2,30 +2,49 @@ export const BTN_ID_EXT = 'composer-button'
 export const PARA_SEP_STR = 'defaultParagraphSeparator'
 export const EMPTY_INPUT = ''
 export const FORMAT_BLOCK = 'formatBlock'
-export const STYLE_ID = 'composer-stylesheet-rules'
+export const INSERT_HTML = 'insertHTML'
+export const STYLE_ID = 'comp-styles'
 export const CODE_EDITOR_ID = 'composer-code-edit'
 
-export const DEF_STYLES = Object.freeze({
-  colors: Object.freeze({
-    gray: '#bfbec3',
-    white: '#ffffff',
-    ebonyBlack: '#242a35',
-    green: '#4caf50',
-    red: '#fa0719',
-    blue: '#03a9f4'
-  }),
+const themes = {
+  light: {
+    toolBorder: '#40413C',
+    toolColor: '#40413C',
+    toolHover: '#FC560B',
+    background: '#FFFFFF',
+    commit: '#4caf50',
+    danger: '#fa0719',
+    toolSelected: '#FC560B',
+  },
+  dark: {
+    toolBorder: '#bfbec3',
+    toolColor: '#bfbec3',
+    toolHover: '#03a9f4',
+    background: '#242a35',
+    commit: '#4caf50',
+    danger: '#fa0719',
+    toolSelected: '#03a9f4'
+  }
+}
+
+
+export const DEF_THEME = Object.freeze({
+  themes: themes,
+  colors: Object.freeze({ ...themes.dark }),
   fonts: Object.freeze({
-    raleway: `"Raleway", sans-serif`
+    btn: `sans-serif`
   }),
   speeds: Object.freeze({
     showTools: '0.75s ease-in-out'
   }),
-  shadow: '2px 2px 8px rgba(0,0,0,0.2)'
+  shadow: '2px 2px 8px rgba(0,0,0,0.2)',
+  maxToolsHeight: 24,
 })
 
 export const DEF_SETTINGS =  Object.freeze({
   destroyOnSave: true,
   destroyOnCancel: true,
+  changeDebounce: 50,
   iconType: 'far',
   defaultParagraphSeparator: 'div',
   classes: Object.freeze({
@@ -56,5 +75,18 @@ export const DEF_SETTINGS =  Object.freeze({
   tools: [],
   showOnClick: true,
   styleWithCSS: false,
-  codeEditActive: false
+  codeEditActive: false,
+  popper: {
+    removeOnDestroy: true,
+    placement: 'bottom-start',
+    modifiers: {
+      offset: { offset: 5 },
+      keepTogether: { enabled: true },
+      preventOverflow: {
+        enabled: true,
+        padding: 10,
+        escapeWithReference: false,
+      }
+    },
+  }
 })

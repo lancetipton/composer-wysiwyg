@@ -1,7 +1,7 @@
-import Buttons from './buttons'
-import Styles from './style_loader'
+import Buttons, { buildToolBtns } from './buttons'
+import { StylesLoader } from './styles'
 import buildPopper from './popper'
-import CleanEditor from './clean_editor'
+import CleanEditor from './clean'
 import { getSelectionCoords, getSelectedText } from './selection'
 import {
   PARA_SEP_STR,
@@ -9,10 +9,13 @@ import {
 } from './constants'
 import {
   addEventListener,
+  debounce,
   exec,
   noContent,
   checkListDisable,
-} from './util'
+  getMutationObserver,
+  checkCall,
+} from './utils'
 import {
   buildContent,
   buildContentActions,
@@ -22,57 +25,10 @@ import {
   buildTools,
   buildToolBar,
   registerTools,
-  updateDefaultStyles,
+  registerTheme,
 } from './builders'
 
-const StyleLoader = new Styles()
-
-const onClickEditor = settings => {
-  return e => {
-    const { isStatic, showOnClick, Editor, onClick } = settings
-    Editor.isActive = true
-    if (!isStatic && showOnClick && !Editor.toolsVisible)
-      toggleTools('on', settings)
-    typeof onClick === 'function'
-      && onClick(e, Editor)
-  }
-}
-
-/**
- * Returns a function that listens for changes
- * Checks for change type, and updates the content based on change
- * Calls the passed in onChange callback if it exists
- * @param  { dom node } content - holds the editable content
- * @param  { object } settings - props that define how WYSIWYG editor functions
- * @return { void }
- */
-const onContentChange = settings => {
-  return (observer) => {
-    if (settings.codeEditActive) return null
-
-    const { Editor, defParaSep, onChange } = settings
-    if (!Editor || !observer || !observer[0]) return null
-
-    const el = observer[0].target
-    const firstChild = el.firstChild
-    // Clean up the the element content if needed
-    firstChild &&
-      firstChild.nodeType === 3
-      && exec(FORMAT_BLOCK, `<${defParaSep}>`)
-
-    // Check if the actions should be disabled
-
-    const { disableIds, state } = checkListDisable(Editor.buttons.getCache())
-    disableIds && disableIds.length && Editor.buttons.disableToggle(state, disableIds)
-
-    // Check if the tools should be turned on
-    if (!Editor.toolsVisible) toggleTools('on', settings)
-
-    // Call the passed in on change handler if it exists
-    typeof onChange === 'function' &&
-      onChange(Editor.contentEl.innerHTML, observer, Editor)
-  }
-}
+const StyleLoader = new StylesLoader()
 
 /**
  * Adds the content dom node to the composing object
@@ -81,21 +37,268 @@ const onContentChange = settings => {
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { void }
  */
-const setupEditor = (settings, contentEl, buttons) => {
-  const { Editor, defParaSep, styleWithCSS } = settings
-  Editor.onSelChange = onSelChange(settings)
-  Editor.contentEl = contentEl
-  Editor.buttons = buttons
-  Editor.onClick = onClickEditor(settings)
-  Editor.composition.end = event => onContentChange(settings)([ event ])
-  Editor.destroy = destroy(settings)
-
-  addEventListener(Editor.contentEl, 'click', Editor.onClick)
-  addEventListener(Editor.contentEl, 'compositionstart', Editor.composition.start)
-  addEventListener(Editor.contentEl, 'compositionend', Editor.composition.end)
+const setupEditor = (settings, buttons) => {
+  const { defParaSep, styleWithCSS } = settings
+  const editorCls = createEditor(settings, buttons)
+  const Editor = new editorCls()
 
   styleWithCSS && exec('styleWithCSS')
   exec(PARA_SEP_STR, defParaSep)
+  settings.Editor = Editor
+}
+
+const createEditor = (settings, buttons) => {
+  const handelKeys = { Backspace: true, Tab: true, Enter: true }
+  let toolsVisible
+  let mutationObs
+
+  const addEvents = (settings, Editor) => {
+    addEventListener(Editor.contentEl, 'click', Editor.onClick)
+    addEventListener(Editor.contentEl, 'compositionstart', Editor.composition.start)
+    addEventListener(Editor.contentEl, 'compositionend', Editor.composition.end)
+    addEventListener(Editor.contentEl, 'keydown', Editor.onKeyDown)
+    addEventListener(document, 'selectionchange', Editor.onSelChange)
+    mutationObs = getMutationObserver(
+      Editor.contentEl,
+      debounce(Editor.onContentChange, settings.changeDebounce)
+    )
+  }
+
+  return class Editor {
+
+    constructor(){
+      this.composition = {
+        start: () => {},
+        end: event => this.onContentChange([ event ])
+      }
+
+      this.popper = undefined
+      this.buttons = buttons
+      this.contentEl = buildContent(settings, this)
+      addEvents(settings, this)
+    }
+
+    onClick = event => {
+      const { isStatic, showOnClick } = settings
+      this.isActive = true
+
+      const resp = checkCall(settings.onClick, event, this)
+      if (resp === false) return null
+
+      if (!isStatic && showOnClick && !toolsVisible)
+        this.toggleTools('on')
+
+      this.buttons.clearDropdown()
+    }
+
+    /**
+    * Called when the text selection changes, updates the xy pos of the caret
+    * Turns on tools if they are not visitable
+    * @param { object } settings - props that define how WYSIWYG editor functions
+    * @return { function } function called when the selection changes
+    */
+    onSelChange = e => {
+      if (settings.destroy) return null
+
+      const { isStatic, showOnClick, onSelect, classes } = settings
+      const selection = getSelection()
+      // Find the closest dom node to search for the editor dom node
+      // text nodes don't have a .closest method, so we need on that does
+      const findNode = selection.anchorNode.nodeType === 3
+        ? selection.anchorNode.parentNode
+        : selection.anchorNode
+      // Check if we have the correct editor for this event
+      const isEditor = findNode.closest(`[contenteditable="true"]`) === this.contentEl
+      // Check if any buttons should be active
+      isEditor && checkActiveButtons(findNode, this, classes.BTN_SELECTED)
+
+      if (isStatic) return null
+
+      // If is active not defined, check if its the active editor
+      if (this.isActive === undefined)
+        this.isActive = document.activeElement === this.contentEl
+      // If it is active, but wrong editor, turn it off
+      else if (this.isActive && !isEditor)
+        this.isActive = false
+      // If it's not active, but we have the correct editor
+      // Check settings to see if the tools should be shown
+      else if (!this.isActive && isEditor && !showOnClick)
+        return null
+
+      // Check for a settings callback on select, and call it
+      const resp = checkCall(onSelect, e, settings)
+      if (resp === false) return null
+
+      // If wrong editor, and the tools are visible, turn them off
+      if (!isEditor)
+        return toolsVisible && this.toggleTools('off')
+
+      // If the tools are on, update their pos based on the selection
+      toolsVisible && this.updateToolsPos(selection)
+
+      // Check if anything was selected
+      // if anchorOffset and focusOffset are 0, then nothing was selected, so return
+      if (!selection || (!selection.anchorOffset && !selection.focusOffset))
+        return null
+
+      // Check if the tools are off, and if so turn them on
+      !toolsVisible && this.toggleTools('on')
+      e.preventDefault()
+    }
+
+    /**
+    * Returns a function that listens for changes
+    * Checks for change type, and updates the content based on change
+    * Calls the passed in onChange callback if it exists
+    * @param  { dom node } content - holds the editable content
+    * @param  { object } settings - props that define how WYSIWYG editor functions
+    * @return { void }
+    */
+    onContentChange = observer => {
+      if (settings.codeEditActive) return null
+
+      const { defParaSep, onChange } = settings
+      if (!observer || !observer[0]) return null
+
+      // Call the passed in on change handler if it exists
+      const resp = checkCall(onChange, this.contentEl.innerHTML, observer, this)
+      if (resp === false) return null
+
+      this.buttons.clearDropdown()
+      const el = observer[0].target
+      const firstChild = el.firstChild
+      // Clean up the the element content if needed
+      firstChild &&
+        firstChild.nodeType === 3
+        && exec(FORMAT_BLOCK, `<${defParaSep}>`)
+
+      // Check if the actions should be disabled
+
+      const { disableIds, state } = checkListDisable(this.buttons.getCache())
+      disableIds && disableIds.length && this.buttons.disableToggle(state, disableIds)
+
+      // Check if the tools should be turned on
+      if (!toolsVisible) this.toggleTools('on')
+
+    }
+
+    /**
+    * Handles input from the keyboard
+    * @param  { object } event - browser window event
+    * @return { boolean } - should do default browser behavior
+    */
+    onKeyDown = event => {
+      const { isStatic, defParaSep } = settings
+      // If response is false, just return
+      const resp = checkCall(settings.onKeyDown, event, this)
+      if (resp === false) return null
+
+      this.buttons.clearDropdown()
+
+      if (
+        !this.contentEl ||
+        !handelKeys[event.key] ||
+        !event.target ||
+        event.target !== this.contentEl
+      ) return null
+
+      switch (event.key){
+        case 'Tab': return event.preventDefault()
+        case 'Enter': {
+          exec(PARA_SEP_STR, `<${defParaSep}>`)
+          return setTimeout(() => (this.updateToolsPos()), 0)
+        }
+        case 'Backspace': {
+          !isStatic && this.updateToolsPos()
+          const selection = getSelection()
+          const selectedText  = getSelectedText(selection)
+          if (
+            selection.isCollapsed &&
+            !selection.anchorOffset &&
+            !selectedText.length &&
+            noContent(this.contentEl)
+          ){
+            // If no el content, reset it, and return
+            return event.preventDefault()
+          }
+        }
+      }
+    }
+
+    /**
+    * Updates the pos of the editor tools
+    * @param { object } settings - props that define how WYSIWYG editor functions
+    * @param { object } selection - dom selection object
+    * @param { object } selPos - new pos for the tools
+    * @return { void }
+    */
+    updateToolsPos = (selection, selPos) => {
+      const { isStatic, offset, onUpdateToolPos } = settings
+      if (isStatic || !this.popper) return null
+
+      selPos = selPos || getSelectionCoords(selection)
+      if (!selPos) return null
+
+      const resp = checkCall(onUpdateToolPos, settings.Editor, selection, selPos)
+      if (resp === false) return null
+
+      settings.caretPos = {
+        x: selPos.x + offset.x || 0,
+        y: selPos.y + offset.y || 0
+      }
+
+      this.popper &&
+        this.popper.scheduleUpdate &&
+        this.popper.scheduleUpdate()
+    }
+
+    /**
+    * Show / Hides the Editor tools
+    * @param  { string } toggle - must be `on` || `off`
+    * @return { void }
+    */
+    toggleTools = toggle => {
+      const { isStatic, classes, onToggleTools } = settings
+      if (isStatic) return null
+
+      const popperTool = this.popper || {}
+      const toolsRoot = popperTool.popper
+      if (!toolsRoot) return null
+
+      // Check if the show class is on the root el
+      const visibleTools = toolsRoot.classList.contains(classes.SHOW)
+
+      const resp = checkCall(onToggleTools, settings.Editor, visibleTools)
+      if (resp === false) return null
+
+      // If toggle is not defined, use the visible flag to set the toggle
+      if (toggle === undefined)
+        toggle = visibleTools ? 'off' : 'on'
+
+      if (toggle === 'off'){
+        toolsRoot.classList.remove(classes.SHOW)
+        toolsRoot.classList.add(classes.HIDDEN)
+        toolsVisible = false
+      }
+      else {
+        toolsRoot.classList.add(classes.SHOW)
+        toolsRoot.classList.remove(classes.HIDDEN)
+        toolsVisible = true
+      }
+
+    }
+
+    destroy = () => {
+      settings.destroy = true
+      // Remove mutation observer
+      mutationObs && mutationObs.disconnect()
+      mutationObs = undefined
+      StyleLoader.remove(this.styleId)
+      CleanEditor(settings)
+      settings = undefined
+    }
+
+  }
 }
 
 /**
@@ -115,160 +318,6 @@ const checkActiveButtons = (findNode, Editor, selCls) => {
     cache[lnkId].button.classList.add(selCls)
 }
 
-/**
- * Handles input from the keyboard
- * @param  { object } event - browser window event
- * @return { boolean } - should do default browser behavior
- */
-const onKeyDown = settings => {
-  const handelKeys = { Backspace: true, Tab: true, Enter: true }
-  return event => {
-    const { Editor, isStatic, onKeyDown, defParaSep } = settings
-    Editor.buttons.clearDropdown()
-
-    typeof onKeyDown === 'function' &&
-      onKeyDown(event, settings.Editor)
-
-    if (
-      !Editor.contentEl ||
-      !handelKeys[event.key] ||
-      !event.target ||
-      event.target !== Editor.contentEl
-    ) return null
-
-    switch (event.key){
-      case 'Tab': return event.preventDefault()
-      case 'Enter': {
-        exec(PARA_SEP_STR, `<${defParaSep}>`)
-        return setTimeout(() => (updateToolsPos(settings)), 0)
-      }
-      case 'Backspace': {
-        !isStatic && updateToolsPos(settings)
-        const selection = getSelection()
-        const selectedText  = getSelectedText(selection)
-        if (
-          selection.isCollapsed &&
-          !selection.anchorOffset &&
-          !selectedText.length &&
-          noContent(Editor.contentEl)
-        ){
-          // If no el content, reset it, and return
-          return event.preventDefault()
-        }
-      }
-    }
-  }
-}
-
-/**
- * Called when the text selection changes, updates the xy pos of the caret
- * Turns on tools if they are not visitable
- * @param { object } settings - props that define how WYSIWYG editor functions
- * @return { function } function called when the selection changes
- */
-const onSelChange = settings => {
-  return e => {
-    const { Editor, isStatic, showOnClick, onSelect, classes } = settings
-    const selection = getSelection()
-    // Find the closest dom node to search for the editor dom node
-    // text nodes don't have a .closest method, so we need on that does
-    const findNode = selection.anchorNode.nodeType === 3
-      ? selection.anchorNode.parentNode
-      : selection.anchorNode
-    // Check if we have the correct editor for this event
-    const isEditor = findNode.closest(`[contenteditable="true"]`) === Editor.contentEl
-    // Check if any buttons should be active
-    isEditor && checkActiveButtons(findNode, Editor, classes.BTN_SELECTED)
-
-    if (isStatic) return null
-
-    // If is active not defined, check if its the active editor
-    if (Editor.isActive === undefined)
-      Editor.isActive = document.activeElement === Editor.contentEl
-    // If it is active, but wrong editor, turn it off
-    else if (Editor.isActive && !isEditor)
-      Editor.isActive = false
-    // If it's not active, but we have the correct editor
-    // Check settings to see if the tools should be shown
-    else if (!Editor.isActive && isEditor && !showOnClick)
-      return null
-
-    // If wrong editor, and the tools are visable, turn them off
-    if (!isEditor)
-      return Editor.toolsVisible && toggleTools('off', settings)
-
-    // Check for a settings callback on select, and call it
-    typeof onSelect === 'function' && onSelect(e, settings)
-
-    // If the tools are on, update their pos based on the selection
-    Editor.toolsVisible && updateToolsPos(settings, selection)
-
-    // Check if anything was selected
-    // if anchorOffset and focusOffset are 0, then nothing was selected, so return
-    if (!selection || (!selection.anchorOffset && !selection.focusOffset))
-      return null
-
-    // Check if the tools are off, and if so turn them on
-    !Editor.toolsVisible && toggleTools('on', settings)
-    e.preventDefault()
-  }
-}
-
-/**
- * Updates the pos of the editor tools
- * @param { object } settings - props that define how WYSIWYG editor functions
- * @param { object } selection - dom selection object
- * @param { object } selPos - new pos for the tools
- * @return { void }
- */
-const updateToolsPos = (settings, selection, selPos) => {
-  const { Editor, isStatic, offset } = settings
-  if (isStatic || !Editor.popper) return null
-
-  selPos = selPos || getSelectionCoords(selection)
-  if (!selPos) return null
-
-  Editor.caretPos = {
-    x: selPos.x + offset.x || 0,
-    y: selPos.y + offset.y || 0
-  }
-
-  Editor.popper &&
-    Editor.popper.scheduleUpdate &&
-    Editor.popper.scheduleUpdate()
-}
-
-/**
- * Show / Hides the Editor tools
- * @param  { string } toggle - must be `on` || `off`
- * @return { void }
- */
-const toggleTools = (toggle, settings) => {
-  const { Editor, isStatic, classes } = settings
-  if (isStatic) return null
-
-  const popperTool = Editor.popper || {}
-  const toolsRoot = popperTool.popper
-  if (!toolsRoot) return null
-
-  // Check if the show class is on the root el
-  const toolsVisible = toolsRoot.classList.contains(classes.SHOW)
-
-  // If toggle is not defined, use the visible flag to set the toggle
-  if (toggle === undefined)
-    toggle = toolsVisible ? 'off' : 'on'
-
-  if (toggle === 'off'){
-    toolsRoot.classList.remove(classes.SHOW)
-    toolsRoot.classList.add(classes.HIDDEN)
-    Editor.toolsVisible = false
-    return
-  }
-
-  toolsRoot.classList.add(classes.SHOW)
-  toolsRoot.classList.remove(classes.HIDDEN)
-  Editor.toolsVisible = true
-}
 
 const onSave = settings => {
   return e => {
@@ -278,7 +327,7 @@ const onSave = settings => {
       settings.Editor
     )
       ? null
-      : settings.destroyOnSave && destroy(settings)()
+      : settings.destroyOnSave && settings.Editor.destroy()
   }
 }
 
@@ -288,7 +337,7 @@ const onCancel = settings => {
     settings.Editor.contentEl.innerHTML = settings.content || ''
     settings.onCancel && settings.onCancel(e, settings.Editor)
       ? null
-      : settings.destroyOnCancel && destroy(settings)()
+      : settings.destroyOnCancel && settings.Editor.destroy()
   }
 }
 
@@ -298,45 +347,38 @@ const onCancel = settings => {
  * @return { object } - WYSIWYG editor object
  */
 const init = opts => {
+  if (!opts || !opts.element)
+    throw new Error('element is required when calling ComposeIt.init')
+
   const settings = buildSettings(opts)
   const tools = buildTools(settings || {})
   const toolbar = buildToolBar(settings.classes.TOOL_BAR)
-  const contentEl = buildContent(settings, onContentChange, onKeyDown)
+  const btnCls = Buttons(settings)
+  const buttons = new btnCls()
 
-  const buttons = new Buttons(settings)
-  buttons.buildToolBtns(tools, toolbar, contentEl)
+  // Add Editor / WYSIWYG settings to the document
+  setupEditor(settings, buttons)
+  buildToolBtns(buttons, tools, toolbar, settings)
 
-  const contentActions = buildContentActions(settings, onSave(settings), onCancel(settings))
+  const contentActions = buildContentActions(
+    settings,
+    onSave(settings),
+    onCancel(settings)
+  )
   const rootEl = buildRoot(settings, toolbar, contentActions)
 
   // Add editor styles to the dom
   buildStyles(settings, StyleLoader)
-  // Add Editor / WYSIWYG settings to the document
-  setupEditor(settings, contentEl, buttons)
   // If not a static editor, build the popper element
-  !settings.isStatic && buildPopper(settings, rootEl, updateToolsPos)
-
-  addEventListener(document, 'selectionchange', settings.Editor.onSelChange)
+  !settings.isStatic && buildPopper(settings, rootEl, settings.Editor.updateToolsPos)
 
   return settings.Editor
 }
 
 
-/**
- * Cleans up the WYSIWYG editor by removing events, tools and popper object
- */
-const destroy = (settings) => {
-  return () => {
-    StyleLoader.remove(settings.Editor.styleId)
-    CleanEditor(settings)
-    settings = undefined
-  }
-}
-
 export {
-  destroy,
   exec,
   init,
   registerTools,
-  updateDefaultStyles,
+  registerTheme,
 }

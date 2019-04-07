@@ -1,4 +1,4 @@
-import { removeEventListener } from './util'
+import { removeEventListener } from './utils'
 
 /**
  * Removes the event listeners from the content editor dom node
@@ -20,9 +20,6 @@ const clearEvents = (settings) => {
   // Remove selection change listener
   Editor.onSelChange &&
     removeEventListener(document, 'selectionchange', Editor.onSelChange)
-  // Remove mutation observer
-  Editor.mutObs && Editor.mutObs.disconnect()
-  Editor.mutObs = undefined
 }
 
 const clearObj = obj => Object
@@ -38,9 +35,6 @@ const clearObj = obj => Object
  */
 const clearEditor = settings => {
   const { Editor, isStatic, classes } = settings
-  // We don't want to clear out unless all event listeners have been removed
-  // Extra check to make sure that happens
-  if (Editor.mutObs) clearEvents(settings)
   Editor.composition.end = undefined
   Editor.composition.start = undefined
   try {
@@ -72,6 +66,7 @@ const clearEditor = settings => {
   }
   // Clean up the settings
   try {
+    clearObj(Editor.buttons)
     clearObj(Editor)
     clearObj(settings)
   }

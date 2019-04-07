@@ -1,124 +1,119 @@
-import { exec } from './util'
-import { FORMAT_BLOCK } from './constants'
-import { getSelection } from './selection'
-import { toggleCodeEditor } from './code_editor'
+import { FORMAT_BLOCK, INSERT_HTML } from '../constants'
+import { toggleCodeEditor, windowPrompt } from './plugins'
 
 let addedTools = {}
-const windowPrompt = ({ remove, message, action, settings, button }) => {
 
-  if (action === 'CreateLink'){
-    const selection = getSelection()
-    const checkNode = selection.anchorNode.nodeType === 3
-      ? selection.anchorNode.parentNode
-      : selection.anchorNode
-
-    if (checkNode.tagName === 'A')
-      return exec(remove, url)
-
-    button.classList.add(settings.classes.BTN_SELECTED)
-  }
-
-  const url = window.prompt(message)
-  if (url) exec(action, url)
-}
-
-
+/**
+ * Helper to build a tool icon with FA
+ * @param  { string } type - Font Awesome icon type
+ * @param  { string } text
+ * @return { string } html button icon as string
+ */
 const buildIcon = (type, text) => `<span class="btn-icon ${type}">${text || ''}</span>`
 
+/**
+ * Adds tool to the default tools
+ * @param  { object } tools - to be added to the default tools ( Global )
+ * @return { void }
+ */
 const registerTools = tools => {
   addedTools = {
     ...addedTools,
     ...tools,
   }
 }
+registerTools.buildIcon = buildIcon
 
-
+/**
+ * Builds the default tools, and joins with any added tools
+ * @param  { object } settings - setting defined when calling ComposeIt.init
+ * @return { object } - built tools object with joined added tools
+ */
 const defaultTools = settings => {
   const faType = settings.iconType
   return {
     redo: {
       icon: buildIcon(`${faType} fa-redo`),
       title: 'Redo',
-      state: 'redo',
+      cmd: 'redo',
       action: 'exec'
     },
     undo: {
       icon: buildIcon(`${faType} fa-undo`),
       title: 'Undo',
-      state: 'undo',
+      cmd: 'undo',
       action: 'exec'
     },
     bold: {
       icon: buildIcon(`${faType} fa-bold`),
       title: 'Bold',
-      state: 'bold',
+      cmd: 'bold',
       action: 'exec'
     },
     italic: {
       icon: buildIcon(`${faType} fa-italic`),
       title: 'Italic',
-      state: 'italic',
+      cmd: 'italic',
       action: 'exec'
     },
     underline: {
       icon: buildIcon(`${faType} fa-underline`),
       title: 'Underline',
-      state: 'underline',
+      cmd: 'underline',
       action: 'exec'
     },
     strikethrough: {
       icon: buildIcon(`${faType} fa-strikethrough`),
       title: 'Strike-through',
-      state: 'strikeThrough',
+      cmd: 'strikeThrough',
       action: 'exec'
     },
     heading: {
       icon: buildIcon(`${faType} fa-heading`),
       title: 'Heading',
-      state: 'heading',
-      type: 'dropdown',
+      cmd: 'dropdown',
       listDisable: true,
       options: {
         heading1: {
           icon: buildIcon('', '<b>1</b>'),
           title: 'Heading 1',
           el: '<h1>',
-          state: 'h1',
+          cmd: 'h1',
           action: FORMAT_BLOCK
         },
         heading2: {
           icon: buildIcon('', '<b>2</b>'),
           title: 'Heading 2',
           el: '<h2>',
-          state: 'h2',
+          cmd: 'h2',
           action: FORMAT_BLOCK
         },
         heading3: {
           icon: buildIcon('', '<b>3</b>'),
           title: 'Heading 3',
           el: '<h3>',
-          state: 'h3',
+          cmd: 'h3',
           action: FORMAT_BLOCK
         },
         heading4: {
           icon: buildIcon('', '<b>4</b>'),
           title: 'Heading 4',
           el: '<h4>',
-          state: 'h4',
+          cmd: 'h4',
           action: FORMAT_BLOCK
         },
         heading5: {
           icon: buildIcon('', '<b>5</b>'),
           title: 'Heading 5',
           el: '<h5>',
-          state: 'h5',
+          cmd: 'h5',
           action: FORMAT_BLOCK
         },
         heading6: {
           icon: buildIcon('', '<b>6</b>'),
           title: 'Heading 6',
           el: '<h6>',
-          state: 'h6',
+          cmd: 'h6',
           action: FORMAT_BLOCK
         },
       }
@@ -126,19 +121,18 @@ const defaultTools = settings => {
     dent: {
       icon: buildIcon(`${faType} fa-indent`),
       title: 'Dent',
-      state: 'dent',
-      type: 'dropdown',
+      cmd: 'dropdown',
       options: {
         indent: {
           icon: buildIcon(`${faType} fa-indent`),
           title: 'Indent',
-          state: 'indent',
+          cmd: 'indent',
           action: 'exec'
         },
         outdent: {
           icon: buildIcon(`${faType} fa-outdent`),
           title: 'Outdent',
-          state: 'outdent',
+          cmd: 'outdent',
           action: 'exec'
         },
       }
@@ -146,31 +140,30 @@ const defaultTools = settings => {
     align: {
       icon: buildIcon(`${faType} fa-align-justify`),
       title: 'Align',
-      state: 'align',
-      type: 'dropdown',
+      cmd: 'dropdown',
       options: {
         justifyLeft: {
           icon: buildIcon(`${faType} fa-align-left`),
           title: 'Left',
-          state: 'justifyLeft',
+          cmd: 'justifyLeft',
           action: 'exec'
         },
         justifyCenter: {
           icon: buildIcon(`${faType} fa-align-center`),
           title: 'Center',
-          state: 'justifyCenter',
+          cmd: 'justifyCenter',
           action: 'exec'
         },
         justifyRight: {
           icon: buildIcon(`${faType} fa-align-right`),
           title: 'Right',
-          state: 'justifyRight',
+          cmd: 'justifyRight',
           action: 'exec'
         },
         justifyFull: {
           icon: buildIcon(`${faType} fa-align-justify`),
           title: 'Justify',
-          state: 'justifyFull',
+          cmd: 'justifyFull',
           action: 'exec'
         },
 
@@ -179,19 +172,18 @@ const defaultTools = settings => {
     script: {
       icon: buildIcon(`${faType} fa-subscript`),
       title: 'Script',
-      state: 'script',
-      type: 'dropdown',
+      cmd: 'dropdown',
       options: {
         subscript: {
           icon: buildIcon(`${faType} fa-subscript`),
           title: 'Subscript',
-          state: 'subscript',
+          cmd: 'subscript',
           action: 'exec'
         },
         superscript: {
           icon: buildIcon(`${faType} fa-superscript`),
           title: 'Superscript',
-          state: 'superscript',
+          cmd: 'superscript',
           action: 'exec'
         },
       }
@@ -213,19 +205,18 @@ const defaultTools = settings => {
     list: {
       icon: buildIcon(`${faType} fa-list`),
       title: 'List',
-      state: 'list',
-      type: 'dropdown',
+      cmd: 'dropdown',
       options: {
         olist: {
           icon: buildIcon(`${faType} fa-list-ol`),
           title: 'Ordered List',
-          state: 'insertOrderedList',
+          cmd: 'insertOrderedList',
           action: 'exec'
         },
         ulist: {
           icon: buildIcon(`${faType} fa-list-ul`),
           title: 'Unordered List',
-          state: 'insertUnorderedList',
+          cmd: 'insertUnorderedList',
           action: 'exec'
         }
       }
@@ -233,7 +224,6 @@ const defaultTools = settings => {
     code: {
       icon: buildIcon(`${faType} fa-code`),
       title: 'Code',
-      el: '<pre>',
       action: (tool, settings, button, e) => toggleCodeEditor({
         tool,
         settings,
@@ -243,7 +233,8 @@ const defaultTools = settings => {
     line: {
       icon: buildIcon(`${faType} fa-arrows-alt-h`),
       title: 'Horizontal Line',
-      action: 'exec'
+      el: '<hr>',
+      action: INSERT_HTML
     },
     link: {
       icon: buildIcon(`${faType} fa-link`),

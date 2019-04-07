@@ -1,13 +1,10 @@
 import { defaultTools, registerTools } from './tools'
-import { getStyles, updateDefaultStyles } from './styles'
+import { getStyles, registerTheme } from './styles'
 import {
-  addEventListener,
   appendChild,
   createElement,
-  debounce,
-  getMutationObserver,
   prependChild,
-} from './util'
+} from './utils'
 import {
   EMPTY_INPUT,
   STYLE_ID,
@@ -23,7 +20,6 @@ const uuid = a => a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([ 1e7 ] 
 
 const buildSettings = settings => ({
   ...joinSettings(settings),
-  Editor: { ...buildEditor() },
   isStatic: settings.type === 'static'
 })
 
@@ -58,7 +54,10 @@ const buildRoot = (settings, toolbar, contentActs) => {
     : appendChild(wrapper, toolbar)
 
   const rootEl = createElement('div')
-  rootEl.className = settings.classes.ROOT
+  settings.styleId = settings.styleId || buildStyleId(settings)
+  rootEl.classList.add(settings.classes.ROOT)
+  rootEl.classList.add(settings.styleId)
+
   appendChild(rootEl, wrapper)
 
   if (!settings.isStatic) appendChild(document.body, rootEl)
@@ -77,23 +76,23 @@ const buildRoot = (settings, toolbar, contentActs) => {
  */
 const buildTools = settings => {
   const defTools = defaultTools(settings)
-  return settings.tools
+  return settings.tools && settings.tools.length
     ? (settings.tools
-      .map(tool => {
-        if (typeof tool !== 'string' && defTools[tool.name])
-          return { ...defTools[tool.name], ...tool }
-        if (typeof tool !== 'string') return
-        if (defTools[tool]) return defTools[tool]
-      })
+      .reduce((allTools, tool) => {
+        if (typeof tool !== 'string' && !Array.isArray(tool))
+          allTools.push({ ...defTools[tool.name], ...tool })
+        else if (typeof tool === 'string' && defTools[tool])
+          allTools.push({ ...defTools[tool] })
+
+        return allTools
+      }, [])
     )
-    : Object
-      .keys(defTools)
-      .map(tool => defTools[tool])
+    : settings.allowDefTools && Object.values(defTools) || []
 }
 
-const buildStyleId = settings => {
-  settings.Editor.styleId = `${STYLE_ID}-${uuid()}`
-  return settings.Editor.styleId
+const buildStyleId = (settings, id) => {
+  settings.styleId = `${STYLE_ID}-${ id || uuid()}`
+  return settings.styleId
 }
 
 /**
@@ -101,9 +100,10 @@ const buildStyleId = settings => {
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { void }
  */
-const buildStyles = (settings, StyleLoader) => (StyleLoader.add(
-  buildStyleId(settings), getStyles(settings)
-))
+const buildStyles = (settings, StyleLoader) => {
+  const styleId = settings.styleId || buildStyleId(settings)
+  StyleLoader.add(styleId, getStyles(settings, styleId))
+}
 
 
 /**
@@ -152,42 +152,22 @@ const buildContentActions = (settings, onSave, onCancel) => {
   return contentActs
 }
 
-const buildEditor = () => ({
-  contentEl: undefined,
-  end: undefined,
-  onSelChange: undefined,
-  composition: {
-    start: () => {},
-  },
-  toolsVisible: undefined,
-  onKeyDown: undefined,
-  onClick: undefined,
-  popper: undefined,
-  mutObs: undefined,
-})
-
 /**
  * Builds content dom node with contentEditable for editing its content
  * Adds event listeners to capture 'Enter' and 'Tab' keyboard events
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { dom node } - build dom node that holds the editable content
  */
-const buildContent = (settings, onContentChange, onKeyDown) => {
-  const { Editor, isStatic, element, classes, content } = settings
+const buildContent = (settings, Editor) => {
+  const { isStatic, element, classes, content } = settings
+  const addContent = content || element.innerHTML || EMPTY_INPUT
   const contentEl = !isStatic && element || createElement('div')
-  contentEl.innerHTML = content || EMPTY_INPUT
+  element.innerHTML = ''
+  contentEl.innerHTML = addContent
+  settings.styleId = settings.styleId || buildStyleId(settings)
   contentEl.contentEditable = true
   contentEl.classList.add(classes.CONTENT)
-  Editor.mutObs = getMutationObserver(
-    contentEl,
-    debounce(onContentChange(settings))
-  )
-
-  if (settings.placeholder && !contentEl.innerHTML)
-    contentEl.dataset.placeholder = settings.placeholder
-
-  Editor.onKeyDown = onKeyDown(settings)
-  addEventListener(contentEl, 'keydown', Editor.onKeyDown)
+  contentEl.classList.add(settings.styleId)
 
   if (isStatic){
     contentEl.style.width = `${element.clientWidth}px`
@@ -231,21 +211,27 @@ const joinSettings = (settings = {}) => {
         ...DEF_SETTINGS.styles.static,
         ...(styles.static || {}),
       }
-    }
+    },
+    popper: {
+      ...DEF_SETTINGS.popper,
+      ...settings.popper,
+      modifiers: {
+        ...DEF_SETTINGS.popper.modifiers,
+        ...(settings.popper && settings.popper.modifiers || {})
+      }
+    },
   }
 
 }
 
-
 export {
   buildContent,
   buildContentActions,
-  buildEditor,
   buildRoot,
   buildSettings,
   buildStyles,
   buildToolBar,
   buildTools,
   registerTools,
-  updateDefaultStyles,
+  registerTheme,
 }

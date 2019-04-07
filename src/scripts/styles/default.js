@@ -1,107 +1,118 @@
-import { DEF_SETTINGS, DEF_STYLES } from './constants'
+import { DEF_SETTINGS, DEF_THEME } from '../constants'
 
-const defaultStyles = DEF_STYLES
+const defaultTheme = { ...DEF_THEME }
 
-const updateDefaultStyles = styleProps => {
+const registerTheme = styleProps => {
   if (typeof styleProps !== 'object' || Array.isArray(styleProps))
     return console.warn(`Updating default styles requires a styles object argument`)
 
+  if (styleProps.theme && styleProps.theme === 'light' || styleProps.theme === 'dark')
+    defaultTheme.colors = { ...DEF_THEME.themes[styleProps.theme] }
+
   if (styleProps.colors)
-    defaultStyles.colors = {
-      ...defaultStyles.colors,
+    defaultTheme.colors = {
+      ...defaultTheme.colors,
       ...styleProps.colors
     }
-  if (styleProps.colors)
-    defaultStyles.fonts = {
-      ...defaultStyles.fonts,
+  if (styleProps.fonts)
+    defaultTheme.fonts = {
+      ...defaultTheme.fonts,
       ...styleProps.fonts
     }
-  if (styleProps.colors)
-    defaultStyles.speeds = {
-      ...defaultStyles.speeds,
+  if (styleProps.speeds)
+    defaultTheme.speeds = {
+      ...defaultTheme.speeds,
       ...styleProps.speeds
     }
 
-  return defaultStyles
+  return defaultTheme
 }
 
-const getStyles = settings => {
-  const useCls = { ...DEF_SETTINGS.classes, ...(settings.classes || {}) }
-  const { colors, speeds, fonts, shadow } = defaultStyles
-  const popRules = settings.styles.pop || {}
-  const staticRules = settings.styles.static || {}
+const getStyles = (settings, styleId) => {
+  styleId = styleId && `.${styleId}` || ''
+  const { isStatic, classes, styles } = settings
+  const useCls = { ...DEF_SETTINGS.classes, ...(classes || {}) }
+  const { colors, speeds, fonts, shadow, maxToolsHeight } = defaultTheme
+  const popRules = styles.pop || {}
+  const staticRules = styles.static || {}
+  const useStyles = isStatic && staticRules || popRules || {}
 
   return {
-    ...(popRules || {}),
-    [`.${useCls.ROOT}`]: {
+    ...(useStyles || {}),
+    // Root editor
+    [`.${useCls.ROOT}${styleId}`]: {
       position: 'absolute',
       display: 'inline-block',
       opacity: 0,
       transition: `opacity ${speeds.showTools}`,
       visibility: 'hidden',
       maxHeight: 24,
-      ...popRules.root,
+      ...useStyles.root,
+
       //----- WYSIWYG WRAPPER ----- //
       [`.${useCls.WRAPPER}`]: {
-        ...popRules.wrapper,
+        ...useStyles.editorWrp,
 
         //----- TOOL BAR ----- //
         [`.${useCls.TOOL_BAR}`]: {
           borderRadius: '20px',
-          backgroundColor: colors.ebonyBlack,
+          backgroundColor: colors.background,
           boxShadow: shadow,
-          ...popRules.toolBar,
+          maxHeight: maxToolsHeight,
+          ...useStyles.toolBar,
 
           //----- BTN GROUP ----- //
           [`.${useCls.BTN_GRP}`]: {
             display: 'inline-flex',
             alignItems: 'center',
             padding: '4px',
-            ...popRules.btnGrp,
+            ...useStyles.toolGrp,
 
             [`.${useCls.BTN_WRAP}`]: {
               position: 'relative',
               border: '1px solid transparent',
-              borderLeft: `1px solid ${colors.gray}`,
+              borderLeft: `1px solid ${colors.toolBorder}`,
               display: 'flex',
-              ...popRules.btnList,
+              ...useStyles.toolList,
 
               [`.${useCls.BTN_TOOL}`]: {
                 border: 'none',
-                ...popRules.btnWrp,
+                ...useStyles.toolWrp,
               },
               [`.${useCls.BTN_TOOL}:first-of-type`]: {
                 border: 'none',
-                ...popRules.btnFirstWrp,
+                ...useStyles.toolFirstWrp,
               },
               [`.${useCls.BTN_DROP_LIST}`]: {
                 position: 'absolute',
                 listStyleType: 'none',
                 margin: 0,
                 padding: 0,
-                backgroundColor: colors.ebonyBlack,
+                backgroundColor: colors.background,
                 visibility: 'hidden',
                 top: 19,
                 width: '100%',
                 textAlign: 'center',
                 boxShadow: shadow,
-                ...popRules.dropList,
+                ...useStyles.dropList,
+
                 [`li`]: {
-                  borderTop: `1px solid ${colors.gray}`,
+                  borderTop: `1px solid ${colors.toolBorder}`,
                   paddingTop: `4px`,
                   paddingBottom: `4px`,
                   fontSize: `10px`,
                   display: 'inline-block',
-                  ...popRules.dropListItem,
+                  ...useStyles.dropListItem,
                 }
               }
             },
 
             [`.${useCls.BTN_WRAP}.${useCls.SHOW}`]: {
+              ...useStyles.btnWrpShow,
 
               [`.${useCls.BTN_DROP_LIST}`]: {
                 visibility: 'visible',
-                ...popRules.dropListOpen,
+                ...useStyles.dropListOpen,
               },
             },
 
@@ -115,28 +126,27 @@ const getStyles = settings => {
               display: 'inline-block',
               textAlign: 'center',
               border: '1px solid transparent',
-              borderLeft: `1px solid ${colors.gray}`,
+              borderLeft: `1px solid ${colors.toolBorder}`,
               padding: '0 10px',
-              color: colors.gray,
+              color: colors.toolColor,
               fontSize: '12px',
+              fontFamily: fonts.btn,
               textDecoration: 'none',
-              ...popRules.btn,
+              ...useStyles.tool,
             },
             [`.${useCls.BTN_TOOL}:first-of-type`]: {
               borderLeft: '1px solid transparent',
-              ...popRules.btnFirst,
+              ...useStyles.toolFirst,
             },
             [`.${useCls.BTN_TOOL}:hover`]: {
-              color: colors.white,
-              ...popRules.btnHover,
+              color: colors.toolHover,
+              ...useStyles.toolHover,
             },
             [`.${useCls.BTN_SELECTED}`]: {
-              color: colors.blue,
-              ...popRules.btnSelected,
+              color: colors.toolSelected,
+              ...useStyles.toolSelected,
             },
-
           },
-
         },
 
         //----- BTN CONTENT ----- //
@@ -147,81 +157,105 @@ const getStyles = settings => {
           fontSize: '14px',
           transition: 'all 0.5s ease',
           top: '30px',
-          color: colors.gray,
+          color: colors.toolColor,
           border: 'none',
           padding: '5px',
           paddingRight: '10px',
           boxShadow: shadow,
-          backgroundColor: colors.ebonyBlack,
+          backgroundColor: colors.background,
           borderRadius: '20px',
           cursor: 'pointer',
-          ...popRules.contentBtn,
+          ...useStyles.contentBtn,
         },
         [`button.${useCls.BTN_CONTENT}:hover`]: {
-          ...popRules.contentBtnHover,
+          ...useStyles.contentBtnHover,
         },
         [`button.${useCls.BTN_CONTENT} > span`]: {
           marginLeft: '4px',
           position: 'relative',
           top: '-2px',
-          fontFamily: fonts.raleway,
+          fontFamily: fonts.btn,
           fontSize: '12px',
-          ...popRules.contentBtnText,
+          ...useStyles.contentBtnText,
         },
 
         //----- BTN SAVE ----- //
         [`button.${useCls.BTN_SAVE}`]: {
           right: '75px',
-          ...popRules.saveBtn,
+          ...useStyles.saveBtn,
         },
         [`button.${useCls.BTN_SAVE}:hover`]: {
-          color: colors.ebonyBlack,
-          backgroundColor: colors.green,
-          ...popRules.saveBtnHover,
+          color: colors.background,
+          backgroundColor: colors.commit,
+          ...useStyles.saveBtnHover,
         },
 
         //----- BTN CANCEL ----- //
         [`button.${useCls.BTN_CANCEL}`]: {
           right: '0px',
-          ...popRules.cancelBtn,
+          ...useStyles.cancelBtn,
         },
         [`button.${useCls.BTN_CANCEL}:hover`]: {
-          color: colors.ebonyBlack,
-          backgroundColor: colors.red,
-          ...popRules.cancelBtnHover,
+          color: colors.background,
+          backgroundColor: colors.danger,
+          ...useStyles.cancelBtnHover,
         }
       },
     },
-    [`.${useCls.ROOT}.${useCls.SHOW}`]: {
+    [`.${useCls.ROOT}${styleId}.${useCls.SHOW}`]: {
       opacity: 1,
       visibility: 'visible',
     },
-    [`.${useCls.ROOT}.${useCls.HIDDEN}`]: {
+    [`.${useCls.ROOT}${styleId}.${useCls.HIDDEN}`]: {
       opacity: 0,
       visibility: 'visible',
     },
-    [`.${useCls.ROOT}.static`]: {
+    [`.${useCls.ROOT}.static${styleId}`]: isStatic && {
       position: 'relative',
       display: 'flex',
       justifyContent: 'center',
       transition: 'initial',
       opacity: 'initial',
       visibility: 'initial',
-      backgroundColor: colors.ebonyBlack,
-      ...staticRules.root,
+      backgroundColor: colors.background,
+      ...useStyles.root,
       [`.${useCls.WRAPPER}`]: {
         display: 'flex',
         justifyContent: 'space-evenly',
-        ...staticRules.wrapper,
+        ...useStyles.editorWrp,
 
+        //----- TOOL BAR ----- //
+        [`.${useCls.TOOL_BAR}`]: {
+          boxShadow: 'none',
+          ...useStyles.toolBar,
+        },
+
+        //----- BTN CONTENT ----- //
         [`button.${useCls.BTN_CONTENT}`]: {
           position: 'initial',
           top: 'initial',
           border: 'initial',
           boxShadow: 'initial',
           borderRadius: 'initial',
-          ...staticRules.contentBtn,
+          ...useStyles.contentBtn,
         },
+
+      }
+    } || {},
+
+    //----- CONTENT ----- //
+    [`.${useCls.CONTENT}${styleId}`]: {
+      ...useStyles.content,
+      //----- CONTENT EDITOR ( textarea ) ----- //
+      [`.${useCls.CODE_EDITOR}`]: {
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        right: '0px',
+        bottom: '0px',
+        border: 'none',
+        padding: '0px',
+        ...useStyles.code_editor,
       }
     }
   }
@@ -230,5 +264,5 @@ const getStyles = settings => {
 
 export {
   getStyles,
-  updateDefaultStyles,
+  registerTheme,
 }
