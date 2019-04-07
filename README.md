@@ -116,14 +116,14 @@
 
 ### Tools
 
-  * **Important** Only tools passed into the `ComposeIt.init` call will be added to the editor
+  * **Important** Only tools passed into the `ComposeIt.init` call will be added to the editor, unless `settings.allowDefTools` is set to `true`
   
       ```js
         const settings = { tools: [ 'bold', 'underline' ] }
         ComposeIt.init(settings)
       ```
       * Only the bold and underline tool will appear in the editor
-      * NO other tools will be added
+      * **NO** other tools will be added
 
   * Default tools
     * redo
