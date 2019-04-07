@@ -1,6 +1,8 @@
 # ComposeIt - WYSIWYG
 
 ### Why
+<hr>
+
   * Could not find a WYSIWYG that was small, and fit my needs
   * The closest I found was [pell.js](https://github.com/jaredreich/pell)
     * pell.js is simple and straight forward, but only has a static layout. I needed a pop-up layout
@@ -8,12 +10,16 @@
     * Also ended up adding a few more features
 
 ### Minimum Browser Support ( nothing guaranteed )
+<hr>
+
   * Chrome 5
   * Firefox 4
   * Safari 5
   * Opera 11.6
 
 ### Install
+<hr>
+
   * Download the repo
     ```js
       // Clone repo
@@ -44,6 +50,8 @@
     ```
 
 ### Dependencies
+<hr>
+
   * [Font Awesome](http://fontawesome.com)
   * [Popper.js](https://popper.js.org)
   * Install
@@ -52,6 +60,8 @@
     ```
 
 ### Features
+<hr>
+
   * Two Editor Types
     * Static
       * Normal WYSIWYG layout
@@ -74,6 +84,7 @@
     * See settings section
 
 ### Theme
+<hr>
 
   * Defaults
     ```js
@@ -115,6 +126,7 @@
       ```
 
 ### Tools
+<hr>
 
   * **Important** Only tools passed into the `ComposeIt.init` call will be added to the editor, unless `settings.allowDefTools` is set to `true`
   
@@ -161,6 +173,8 @@
     * image
 
 ### Custom Tools
+<hr>
+
 
   * Custom tool properties
       * icon ( String )
@@ -272,6 +286,8 @@
       ```
 
 ### Settings
+<hr>
+
 
   * Overwrite default settings
     * Pass the settings object to the on init call
@@ -415,6 +431,8 @@
     ```
 
 ### Styles
+<hr>
+
 
   * Each editor gets its own style id, which applies only to that editor
     * Updating the theme will only apply to editors built after update has been applied
@@ -464,6 +482,7 @@
   
 
 ### ComposeIt API Methods
+<hr>
 
   * init
     * Example 
@@ -499,8 +518,9 @@
     * Example - see example in the theme section above
 
 ### Editor API Methods
+<hr>
 
-  * returned from the **ComposeIt.init** method
+  * Returned from the **ComposeIt.init** method
 
   * buttons ( Class )
     * Buttons Manager for managing Editor Tool buttons
@@ -543,8 +563,9 @@
   * Editor methods are bound to Dom Events
     * If you try to override the methods of the editor, you're going to have a bad time
 
-
 ### Full Example
+<hr>
+
   ```html
     <head>
       <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/@fortawesome/fontawesome-free/css/all.css">
