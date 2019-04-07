@@ -65,9 +65,9 @@
   * Customizable Tools
     * All tools can be overwritten
     * Easy to add custom tools
-      * Call the ComposeIt.registerTools({ ...js object })
+      * Call the `ComposeIt.registerTools({ tool object })`
         * Includes helper for building tool icon
-        * ComposeIt.registerTools.buildIcon( ... )
+        * `ComposeIt.registerTools.buildIcon('FA icon type', 'tool text')`
     * See tools section below for more information
 
   * Lots of other custom settings
@@ -159,6 +159,41 @@
     * line
     * link
     * image
+
+### Custom Tools
+
+  * Custom tool properties
+      * icon ( String )
+        * html string
+      * title ( String )
+        * Name of the tool
+        * Set as the button title property, that is shown when tool is `hovered`
+      * name ( String )
+        * Key of the tool in the `Default tools` object
+        * Must match one of the keys from the `Default tools` section above to override that tool
+        * Or used to define a custom tool when registering it
+      * el ( String )
+        * html string element; i.e. '<p>'
+        * passed to `document.execCommand` when `action` property is `formatBlock || insertHTML`
+      * cmd ( String )
+        * If set to 'dropdown', will toggle its sub-tools dropdown if it exists
+        * Else, value is passed to the `document.execCommand` when `action` property is `exec`
+      * options ( Object )
+        * Holds sub-tools as key / value pair
+          * key - name of the tool
+          * value - tool object
+        * **IMPORTANT** - For sub-tools to be built, `cmd` property must be set to `dropdown`
+      * action ( String | Function )
+        * Called when the tool is pressed
+        * If a string, must be one of
+          * `exec`
+            * calls the `document.execCommand`, passing in the `cmd` property of the tool
+          * `formatBlock` || `insertHTML`
+            * calls the `document.execCommand`, passing in the `el` property of the tool
+        * If a Function
+          * Function is bound to the editor dom node element, and called
+            * Params are passed in this order
+              * tool, settings, button, event
 
   * Add custom tool **Global** ( Must be called before init method )
 
