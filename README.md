@@ -1,19 +1,6 @@
-# ComposeIt - WYSIWYG
+# Compose-It ( WYSIWYG Editor )
 
-## Why
-
-  * Could not find a WYSIWYG that was small, and fit my needs
-  * The closest I found was [pell.js](https://github.com/jaredreich/pell)
-    * pell.js is simple and straight forward, but only has a static layout. I needed a pop-up layout
-    * At first I just forked pell.js, but eventually I just re-wrote everything
-    * Also ended up adding a few more features
-
-## Minimum Browser Support ( nothing guaranteed )
-
-  * Chrome 5
-  * Firefox 4
-  * Safari 5
-  * Opera 11.6
+I could not find a WYSIWYG that was **small** and fit my needs. The closest I found was [pell.js](https://github.com/jaredreich/pell). Pell.js is simple and straight forward, but only has a static layout. I needed a pop-up layout. At first I just forked forked it, but eventually I just re-wrote everything and also added a few more features.
 
 ## Install
 
@@ -49,7 +36,9 @@
 ## Dependencies
 
   * [Font Awesome](http://fontawesome.com)
+    * Used for icons
   * [Popper.js](https://popper.js.org)
+    * Used for the floating pop-up editor
   * Install
     ```bash
       yarn install popper.js @fortawesome/fontawesome-free
