@@ -1,0 +1,40 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px;
+}
+.wrapper > * {
+  max-width: 800px;
+}
+
+
+.wrapper > h2 {
+  margin: 0px;
+}
+
+.wrapper > h4 {
+  margin: 0px;
+  text-align: left;
+  width: 100%;
+}
+
+.editor {
+  margin-top: 10px;
+}
+
+.editor-pop {
+  width: 100%;
+  height: 300px;
+}
+
+.editor-static {
+  width: 100%;
+  height: 300px;
+  border: 2px solid #242a35;
+}
+
+html, html *, *:focus {
+  outline: 0;
+}
