@@ -59,9 +59,9 @@ I could not find a WYSIWYG that was **small** and fit my needs. The closest I fo
   * Customizable Tools
     * All tools can be overwritten
     * Easy to add custom tools
-      * Call the `ComposeIt.registerTools({ tool object })`
+      * Call the `ComposeIt.registerTools({ ...tool object })`
         * Includes helper for building tool icon
-        * `ComposeIt.registerTools.buildIcon('FA icon type', 'tool text')`
+        * `ComposeIt.registerTools.buildIcon('FA icon type "fas || far"', 'tool text')`
     * See tools section below for more information
 
   * Lots of other custom settings
@@ -282,6 +282,11 @@ I could not find a WYSIWYG that was **small** and fit my needs. The closest I fo
         // Dom node to bind the editor to ( REQUIRED )
         element: undefined,
 
+        // Sets the width of the content editor ( Static Editor ONLY )
+        // If set to true, will set the content area to the parents width
+        // If not set, width will be set to '100%'
+        matchParentWidth: undefined,
+        
         // Initial content for the editor
           // * If not set, will use element.innerHTML
           // * IMPORTANT - gets set every time the init method is called on the element
@@ -460,7 +465,7 @@ I could not find a WYSIWYG that was **small** and fit my needs. The closest I fo
     * All other styles till apply
   
 
-## ComposeIt API Methods
+## Compose It API
 
   * init
     * Example 
@@ -495,7 +500,7 @@ I could not find a WYSIWYG that was **small** and fit my needs. The closest I fo
   * registerTheme
     * Example - see example in the theme section above
 
-## Editor API Methods
+## Editor API
 
   * Returned from the **ComposeIt.init** method
 
@@ -544,7 +549,7 @@ I could not find a WYSIWYG that was **small** and fit my needs. The closest I fo
 
   ```html
     <head>
-      <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/@fortawesome/fontawesome-free/css/all.css">
+      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
       <script src="ComposeIt.min.js"></script>
     </head>
     <body>

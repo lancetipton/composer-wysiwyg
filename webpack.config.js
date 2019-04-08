@@ -40,8 +40,8 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(paths, {}),
-    new HtmlWebpackPlugin({ template: './src/example/index.html' }),
     new CopyWebpackPlugin([
+      { from: './src/example/index.html' },
       { from: './src/example/index.css' },
       { from: './src/example/index.js' },
       { from: './src/example/github.css' },

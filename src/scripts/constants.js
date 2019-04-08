@@ -42,6 +42,7 @@ export const DEF_THEME = Object.freeze({
 })
 
 export const DEF_SETTINGS =  Object.freeze({
+  matchParentWidth: undefined,
   destroyOnSave: true,
   destroyOnCancel: true,
   changeDebounce: 50,
@@ -77,16 +78,9 @@ export const DEF_SETTINGS =  Object.freeze({
   styleWithCSS: false,
   codeEditActive: false,
   popper: {
+    eventsEnabled: false,
     removeOnDestroy: true,
     placement: 'bottom-start',
-    modifiers: {
-      offset: { offset: 5 },
-      keepTogether: { enabled: true },
-      preventOverflow: {
-        enabled: true,
-        padding: 10,
-        escapeWithReference: false,
-      }
-    },
+    modifiers: {},
   }
 })

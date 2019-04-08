@@ -7,22 +7,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" media="screen" href="index.css">
   <link rel="stylesheet" type="text/css" media="screen" href="github.css">
-  <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/@fortawesome/fontawesome-free/css/all.css">
-
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.2/markdown-it.min.js"></script>
-  <script src="ComposeIt.min.js"></script>
-  <script src="markdown.min.js"></script>
   
-
 </head>
 <body>
   
   <nav class="compose-nav" >
-    <ul class="nav-list" >
-      <li>
-        <a href="https://github.com/lancetipton/Compose-It">
+    <ul class="nav-list" id="nav-list" >
+      <li class="compose-link-wrapper">
+        <a class="compose-link" href="https://github.com/lancetipton/Compose-It">
           <i class="fab fa-github"></i>
           Git Hub
         </a>
@@ -31,14 +26,20 @@
   </nav>
   
   <div class="editor-wrapper header">
-    <h2>Compose It</h2>
+    <h2>Compose &nbsp;&nbsp;t</h2>
+    <div class="compose-icons" >
+      <i class="fas fa-pen pen"></i>
+    </div>
     <p>
-      Small and customizable WYSIWYG
+      Small and customizable content editor
     </p>
   </div>
   
   <div class="editor-wrapper">
-    <h4>Pop Up Editor Example</h4>
+    <h4>
+      Pop Up Editor Example
+      <span>( click the text below )</span>
+    </h4>
     <div class="editor editor-pop" id="editor-pop">
       Overwritten by setting the content property in the settings object
     </div>
@@ -54,7 +55,7 @@
           Destroy
         </span>
       </button>
-      <button class="button fas fa-plus-circle add-pop-editor" id="add-pop-editor" >
+      <button class="button fas fa-plus-circle add-pop-editor" id="add-pop-editor" disabled >
         <span>
           Add
         </span>
@@ -62,14 +63,12 @@
     </div>
   </div>
 
-  <div class="editor-wrapper header instructions">
-    <h2>Instructions</h2>
-  </div>
-
   <div class="markdown-content-wrapper" >
-    <div id="compose-header-wrapper" class="markdown-content" ></div>
+    <div id="markdown-content" class="markdown-content" ></div>
   </div>
 
+  <script src="ComposeIt.min.js"></script>
+  <script src="markdown.min.js"></script>
   <script src="index.js"></script>
 </body>
 </html>

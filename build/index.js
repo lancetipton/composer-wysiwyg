@@ -148,18 +148,25 @@ document.addEventListener('DOMContentLoaded', function(){
     let staticComp = buildStaticEditor()
     // Add actions to build / destroy the static editor
     const destBtn = document.getElementById('destroy-pop-editor')
+    const addBtn = document.getElementById('add-pop-editor')
     destBtn.addEventListener('click', e => {
+      addBtn.classList.add('active')
+      destBtn.classList.remove('active')
+      addBtn.disabled = false
+      destBtn.disabled = true
       staticComp && staticComp.destroy()
       staticComp = null
     })
 
-    const addBtn = document.getElementById('add-pop-editor')
     addBtn.addEventListener('click', e => {
       if (staticComp) return
+      destBtn.classList.add('active')
+      addBtn.classList.remove('active')
+      destBtn.disabled = false
+      addBtn.disabled = true
       compose.registerTheme({ theme: 'dark' })
       staticComp = compose.init(staticOpts)
     })
-
     // Builds a popup editor that follows along with the text
     buildPopEditor()
 

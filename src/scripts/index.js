@@ -58,6 +58,7 @@ const createEditor = (settings, buttons) => {
     addEventListener(Editor.contentEl, 'compositionend', Editor.composition.end)
     addEventListener(Editor.contentEl, 'keydown', Editor.onKeyDown)
     addEventListener(document, 'selectionchange', Editor.onSelChange)
+    addEventListener(document, 'click', Editor.onClick)
     mutationObs = getMutationObserver(
       Editor.contentEl,
       debounce(Editor.onContentChange, settings.changeDebounce)
@@ -79,7 +80,17 @@ const createEditor = (settings, buttons) => {
     }
 
     onClick = event => {
+      if (event.currentTarget === document){
+        this.isActive = false
+        return null
+      }
+      else if (event.currentTarget === this.contentEl){
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
       const { isStatic, showOnClick } = settings
+
       this.isActive = true
 
       const resp = checkCall(settings.onClick, event, this)
@@ -98,13 +109,13 @@ const createEditor = (settings, buttons) => {
     * @return { function } function called when the selection changes
     */
     onSelChange = e => {
-      if (settings.destroy) return null
+      if (settings.destroy || this.isActive === false) return null
 
       const { isStatic, showOnClick, onSelect, classes } = settings
       const selection = getSelection()
       // Find the closest dom node to search for the editor dom node
       // text nodes don't have a .closest method, so we need on that does
-      const findNode = selection.anchorNode.nodeType === 3
+      const findNode = selection.anchorNode && selection.anchorNode.nodeType === 3
         ? selection.anchorNode.parentNode
         : selection.anchorNode
       // Check if we have the correct editor for this event
@@ -155,7 +166,8 @@ const createEditor = (settings, buttons) => {
     * @return { void }
     */
     onContentChange = observer => {
-      if (settings.codeEditActive) return null
+      if (settings.destroy ||  settings.codeEditActive || this.isActive === false)
+        return null
 
       const { defParaSep, onChange } = settings
       if (!observer || !observer[0]) return null
@@ -188,6 +200,8 @@ const createEditor = (settings, buttons) => {
     * @return { boolean } - should do default browser behavior
     */
     onKeyDown = event => {
+      if (settings.destroy || this.isActive === false) return null
+
       const { isStatic, defParaSep } = settings
       // If response is false, just return
       const resp = checkCall(settings.onKeyDown, event, this)
@@ -271,6 +285,9 @@ const createEditor = (settings, buttons) => {
       const resp = checkCall(onToggleTools, settings.Editor, visibleTools)
       if (resp === false) return null
 
+      if (settings.destroy || this.isActive === false)
+        toggle == 'off'
+
       // If toggle is not defined, use the visible flag to set the toggle
       if (toggle === undefined)
         toggle = visibleTools ? 'off' : 'on'
@@ -289,6 +306,7 @@ const createEditor = (settings, buttons) => {
     }
 
     destroy = () => {
+      this.isActive = false
       settings.destroy = true
       // Remove mutation observer
       mutationObs && mutationObs.disconnect()

@@ -159,9 +159,10 @@ const buildContentActions = (settings, onSave, onCancel) => {
  * @return { dom node } - build dom node that holds the editable content
  */
 const buildContent = (settings, Editor) => {
-  const { isStatic, element, classes, content } = settings
+  const { isStatic, element, classes, content, matchParentWidth } = settings
   const addContent = content || element.innerHTML || EMPTY_INPUT
   const contentEl = !isStatic && element || createElement('div')
+  isStatic && contentEl.classList.add('static')
   element.innerHTML = ''
   contentEl.innerHTML = addContent
   settings.styleId = settings.styleId || buildStyleId(settings)
@@ -170,7 +171,11 @@ const buildContent = (settings, Editor) => {
   contentEl.classList.add(settings.styleId)
 
   if (isStatic){
-    contentEl.style.width = `${element.clientWidth}px`
+
+    if (matchParentWidth)
+      contentEl.style.width = `${element.clientWidth}px`
+    else contentEl.style.width = '100%'
+
     contentEl.style.height = `${element.clientHeight - 29}px`
     appendChild(element, contentEl)
   }

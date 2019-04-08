@@ -155,16 +155,16 @@ const getStyles = (settings, styleId) => {
           position: 'absolute',
           width: 'auto',
           height: 'auto',
-          fontSize: '14px',
+          fontSize: 14,
           transition: 'all 0.5s ease',
-          top: '30px',
+          top: 35,
           color: colors.toolColor,
           border: 'none',
-          padding: '5px',
-          paddingRight: '10px',
+          padding: 5,
+          paddingRight: 10,
           boxShadow: shadow,
           backgroundColor: colors.background,
-          borderRadius: '20px',
+          borderRadius: 20,
           cursor: 'pointer',
           ...useStyles.contentBtn,
         },
@@ -172,17 +172,17 @@ const getStyles = (settings, styleId) => {
           ...useStyles.contentBtnHover,
         },
         [`button.${useCls.BTN_CONTENT} > span`]: {
-          marginLeft: '4px',
+          marginLeft: 4,
           position: 'relative',
           top: '-2px',
           fontFamily: fonts.btn,
-          fontSize: '12px',
+          fontSize: 12,
           ...useStyles.contentBtnText,
         },
 
         //----- BTN SAVE ----- //
         [`button.${useCls.BTN_SAVE}`]: {
-          right: '75px',
+          right: 75,
           ...useStyles.saveBtn,
         },
         [`button.${useCls.BTN_SAVE}:hover`]: {
@@ -242,6 +242,15 @@ const getStyles = (settings, styleId) => {
         },
 
       }
+    } || {},
+
+    [`.${useCls.CONTENT}${styleId}.static`]: {
+      border: '2px solid #242a35',
+      borderTop: 'none',
+      ['box-sizing']: 'border-box',
+      ['-moz-box-sizing']: 'border-box',
+      ['-webkit-box-sizing']: 'border-box',
+      padding: '0px 5px',
     } || {},
 
     //----- CONTENT ----- //
