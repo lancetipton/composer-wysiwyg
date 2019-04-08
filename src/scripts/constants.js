@@ -38,7 +38,7 @@ export const DEF_THEME = Object.freeze({
     showTools: '0.75s ease-in-out'
   }),
   shadow: '2px 2px 8px rgba(0,0,0,0.2)',
-  maxToolsHeight: 24,
+  maxToolsHeight: 29,
 })
 
 export const DEF_SETTINGS =  Object.freeze({

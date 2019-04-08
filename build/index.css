@@ -1,40 +1,125 @@
-.wrapper {
+html, html *, *:focus {
+  outline: 0;
+}
+
+nav.compose-nav {
+  position: absolute;
+  right: 0px;
+}
+
+nav.compose-nav > ul {
+  list-style-type: none;
+  padding: 20px;
+  padding-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+nav.compose-nav > ul > li {
+  
+}
+
+.editor-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   padding: 10px;
 }
-.wrapper > * {
-  max-width: 800px;
+.editor-wrapper > h4,
+.editor-wrapper > div.editor {
+  max-width: 80vw;
 }
 
+.editor-wrapper.header {
+  margin-bottom: 30px;
+}
 
-.wrapper > h2 {
+.editor-wrapper.header > p {
   margin: 0px;
+  padding-top: 5px;
 }
 
-.wrapper > h4 {
+.editor-wrapper.header.instructions {
+  margin-top: 60px;
+  margin-bottom: 30px;
+  width: 100%;
+  text-align: center;
+}
+.editor-wrapper.header.instructions > h2 {
+  width: 80vw;
+  text-align: center;
+}
+
+
+.editor-wrapper > h2 {
+  margin: 0px;
+  padding: 0px;
+}
+
+.editor-wrapper > h4 {
   margin: 0px;
   text-align: left;
   width: 100%;
 }
 
-.editor {
+.editor-wrapper > .editor {
   margin-top: 10px;
 }
 
-.editor-pop {
+.editor-wrapper > .editor-pop {
   width: 100%;
   height: 300px;
 }
 
-.editor-static {
+.editor-wrapper > .editor-static {
   width: 100%;
   height: 300px;
   border: 2px solid #242a35;
 }
 
-html, html *, *:focus {
-  outline: 0;
+.editor-wrapper .static-action-wrapper {
+  margin-top: 10px;
 }
+
+.editor-wrapper .static-action-wrapper > button {
+  float: right;
+  padding: 5px 20px;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 1s ease;
+}
+.editor-wrapper .static-action-wrapper > button:hover {
+  opacity: 1;
+}
+
+.editor-wrapper .static-action-wrapper > button > span {
+  font-family: 'Raleway', sans-serif;
+}
+
+.editor-wrapper .static-action-wrapper .add-pop-editor {
+  background-color: #4caf50;
+}
+.editor-wrapper .static-action-wrapper .destroy-pop-editor {
+  margin-left: 10px; 
+  background-color: #fa0719;
+}
+
+.markdown-content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.markdown-content-wrapper .markdown-content{
+  max-width: 800px;
+}
+
+.markdown-content-wrapper .markdown-content > h1:first-of-type {
+  display: none;
+}
+.markdown-content-wrapper .markdown-content > p:first-of-type {
+  display: none;
+}
+

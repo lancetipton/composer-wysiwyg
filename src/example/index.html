@@ -3,38 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Composer WYSIWYG</title>
+  <title>Compose It</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" media="screen" href="index.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="github.css">
   <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/@fortawesome/fontawesome-free/css/all.css">
+
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.2/markdown-it.min.js"></script>
   <script src="ComposeIt.min.js"></script>
+  <script src="markdown.min.js"></script>
+  
 
 </head>
 <body>
-  <div class="wrapper">
-    <h2>Composer WYSIWYG</h2>
+  
+  <nav class="compose-nav" >
+    <ul class="nav-list" >
+      <li>
+        <a href="https://github.com/lancetipton/Compose-It">
+          <i class="fab fa-github"></i>
+          Git Hub
+        </a>
+      </li>
+    </ul>
+  </nav>
+  
+  <div class="editor-wrapper header">
+    <h2>Compose It</h2>
+    <p>
+      Small and customizable WYSIWYG
+    </p>
   </div>
-  <div class="wrapper">
-    <h4>Pop Up Editor</h4>
+  
+  <div class="editor-wrapper">
+    <h4>Pop Up Editor Example</h4>
     <div class="editor editor-pop" id="editor-pop">
       Overwritten by setting the content property in the settings object
     </div>
   </div>
-  <div class="wrapper">
-    <h4>Static Editor</h4>
+  <div class="editor-wrapper">
+    <h4>Static Editor Example</h4>
     <div class="editor editor-static" id="editor-static">
       Default Static Content, will not be overwritten
     </div>
-    <button class="button fas fa-times" id="add-pop-editor" >
-      <span>
-        Add
-      </span>
-    </button>
-    <button class="button fas fa-times" id="destroy-pop-editor" >
-      <span>
-        Destroy
-      </span>
-    </button>
+    <div class="static-action-wrapper">
+      <button class="button fas fa-times-circle destroy-pop-editor" id="destroy-pop-editor" >
+        <span>
+          Destroy
+        </span>
+      </button>
+      <button class="button fas fa-plus-circle add-pop-editor" id="add-pop-editor" >
+        <span>
+          Add
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-wrapper header instructions">
+    <h2>Instructions</h2>
+  </div>
+
+  <div class="markdown-content-wrapper" >
+    <div id="compose-header-wrapper" class="markdown-content" ></div>
   </div>
 
   <script src="index.js"></script>

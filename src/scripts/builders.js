@@ -171,7 +171,7 @@ const buildContent = (settings, Editor) => {
 
   if (isStatic){
     contentEl.style.width = `${element.clientWidth}px`
-    contentEl.style.height = `${element.clientHeight - 24}px`
+    contentEl.style.height = `${element.clientHeight - 29}px`
     appendChild(element, contentEl)
   }
 

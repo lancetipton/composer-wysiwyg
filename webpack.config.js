@@ -6,16 +6,19 @@ const webpack = require('webpack')
 
 const libraryName = 'ComposeIt'
 const ENV_MODE = process.env.ENV
-const outputFile = libraryName + '.min.js'
+const outputFile = '.min.js'
 const paths = [ './build' ]
 
 module.exports = {
   mode: ENV_MODE || 'development',
-  entry: './src/scripts/index.js',
+  entry: {
+    [libraryName]: './src/scripts/index.js',
+    markdown: './src/example/markdown.js',
+  },
   output: {
     path: path.resolve(__dirname, './build'),
-    filename: outputFile,
-    library: libraryName,
+    filename: '[name]' + outputFile,
+    library: '[name]',
   },
   module: {
     rules: [
@@ -24,6 +27,12 @@ module.exports = {
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader'
+        }
+      },
+      {
+        test: /\.md$/,
+        use: {
+          loader: 'raw-loader',
         }
       },
       { enforce: 'pre', test: /\.(js|css)$/, loader: 'remove-comments-loader' }
@@ -35,6 +44,7 @@ module.exports = {
     new CopyWebpackPlugin([
       { from: './src/example/index.css' },
       { from: './src/example/index.js' },
+      { from: './src/example/github.css' },
     ])
   ],
 }

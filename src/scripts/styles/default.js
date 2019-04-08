@@ -46,7 +46,7 @@ const getStyles = (settings, styleId) => {
       opacity: 0,
       transition: `opacity ${speeds.showTools}`,
       visibility: 'hidden',
-      maxHeight: 24,
+      maxHeight: maxToolsHeight,
       ...useStyles.root,
 
       //----- WYSIWYG WRAPPER ----- //
@@ -102,6 +102,7 @@ const getStyles = (settings, styleId) => {
                   paddingBottom: `4px`,
                   fontSize: `10px`,
                   display: 'inline-block',
+                  margin: '0px',
                   ...useStyles.dropListItem,
                 }
               }
