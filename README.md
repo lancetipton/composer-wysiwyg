@@ -1,6 +1,6 @@
 # Compose It ( WYSIWYG Editor )
 
-I could not find a WYSIWYG that was **small** and fit my needs. The closest I found was [pell.js](https://github.com/jaredreich/pell). Pell.js is simple and straight forward, but only has a static layout. I needed a pop-up layout. At first I just forked forked it, but eventually I just re-wrote everything and also added a few more features.
+I could not find a WYSIWYG that was **small** and fit my needs. The closest I found was [pell.js](https://github.com/jaredreich/pell). Pell.js is simple and straight forward, but only has a static layout. I needed a pop-up layout. At first I just forked it, but eventually I just re-wrote everything and also added a few more features.
 
 ## Install
 
