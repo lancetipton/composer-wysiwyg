@@ -1,0 +1,201 @@
+html, html *, *:focus {
+  outline: 0;
+}
+
+nav.compose-nav {
+  position: fixed;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  background-color: #242a35;
+  z-index: 100;
+}
+
+nav.compose-nav > ul {
+  width: 100%;
+  list-style-type: none;
+  padding: 4px 0px 6px;
+  margin: 0px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+nav.compose-nav > ul > li.compose-link-wrapper:first-of-type {
+  border-left: none;
+}
+nav.compose-nav > ul > li.compose-link-wrapper {
+  margin: 0px;
+  padding: 0px 15px;
+  border-left: 1px solid #FFFFFF;
+}
+nav.compose-nav > ul > li.compose-link-wrapper a.compose-link {
+  text-decoration: none;
+  transition: color 0.5s ease;
+  color: #FFFFFF;
+}
+
+nav.compose-nav > ul > li.compose-link-wrapper a.compose-link:hover {
+  color: #4caf50;
+}
+
+
+.editor-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px;
+}
+.editor-wrapper > h4,
+.editor-wrapper > div.editor {
+  max-width: 80vw;
+}
+
+.editor-wrapper.header {
+  margin-bottom: 30px;
+}
+
+.editor-wrapper.header {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 0px;
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid #cccccc;
+}
+.editor-wrapper.header > h2 {
+  width: 80vw;
+  text-align: center;
+  border: none;
+  margin: 0px;
+}
+
+.editor-wrapper.header > p {
+  margin: 0px;
+  padding: 0px;
+}
+.editor-wrapper.header .compose-icons {
+  position: relative;
+}
+
+.editor-wrapper.header .compose-icons .fas {
+  position: absolute;
+}
+
+.editor-wrapper.header .compose-icons .star {
+  left: -80px;
+  bottom: 25px;
+  font-size: 8px;
+  transform: rotate(-120deg);
+}
+.editor-wrapper.header .compose-icons .pen {
+  font-size: 21px;
+  bottom: 9px;
+  left: 43px;
+  transform: rotate(-45deg);
+}
+
+.editor-wrapper > h2 {
+  margin: 0px;
+  padding: 0px;
+}
+
+.editor-wrapper > h4 {
+  margin: 0px;
+  text-align: left;
+  width: 100%;
+}
+
+.editor-wrapper > h4 > span {
+  font-size: 12px;
+}
+
+
+.editor-wrapper > .editor {
+  margin-top: 10px;
+}
+
+.editor-wrapper > .editor-pop {
+  width: 100%;
+  height: 200px;
+}
+
+.editor-wrapper > .editor-static {
+  width: 100%;
+  height: 200px;
+}
+
+.editor-wrapper .static-action-wrapper {
+  margin-top: 10px;
+  position: relative;
+}
+
+.editor-wrapper .static-action-wrapper > button {
+  float: right;
+  padding: 5px 20px;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 1s ease;
+  position: absolute;
+  width: 102px;
+}
+.editor-wrapper .static-action-wrapper > button.active {
+  opacity: 0.75;
+}
+
+.editor-wrapper .static-action-wrapper > button:hover {
+  opacity: 1;
+}
+
+.editor-wrapper .static-action-wrapper > button:disabled {
+  opacity: 0 !important;
+  z-index: -1;
+}
+
+
+.editor-wrapper .static-action-wrapper > button > span {
+  font-family: 'Raleway', sans-serif;
+}
+
+.editor-wrapper .static-action-wrapper .add-pop-editor {
+  background-color: #4caf50;
+  opacity: 0;
+}
+.editor-wrapper .static-action-wrapper .destroy-pop-editor {
+  background-color: #fa0719;
+}
+
+.markdown-content-wrapper {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.markdown-content-wrapper .markdown-content{
+  width: 80vw;
+}
+
+.markdown-content-wrapper .markdown-content > h1:first-of-type {
+  display: none;
+}
+.markdown-content-wrapper .markdown-content > p:first-of-type {
+  display: none;
+}
+
+@media screen and (max-width: 930px) {
+  nav.compose-nav > ul > li.compose-link-wrapper {
+    padding: 0px 10px;
+  }
+  nav.compose-nav > ul > li.compose-link-wrapper{
+    font-size: 12px;
+  }
+}
+
+
+@media screen and (max-width: 800px) {
+  nav.compose-nav > ul > li.compose-link-wrapper {
+    padding: 0px 8px;
+  }
+}
