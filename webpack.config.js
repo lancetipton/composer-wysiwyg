@@ -19,6 +19,8 @@ module.exports = {
     path: path.resolve(__dirname, './build'),
     filename: '[name]' + outputFile,
     library: '[name]',
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
   module: {
     rules: [
