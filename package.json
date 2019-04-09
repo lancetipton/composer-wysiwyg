@@ -1,17 +1,17 @@
 {
-  "name": "composer-wysiwyg",
-  "version": "1.0.0",
+  "name": "compose-it",
+  "version": "1.0.1",
   "description": "Simple WYSIWYG",
   "author": "Lance Tipton <ltipton@tiptondigital.com>",
-  "main": "build/composer.min.js",
+  "main": "build/ComposeIt.min.js",
   "module": "src/scripts/index.js",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lancetipton/composer-wysiwyg.git"
+    "url": "https://github.com/lancetipton/Compose-It.git"
   },
   "bugs": {
-    "url": "https://github.com/lancetipton/composer-wysiwyg/issues"
+    "url": "https://github.com/lancetipton/Compose-It/issues"
   },
   "keywords": [
     "wysiwyg",

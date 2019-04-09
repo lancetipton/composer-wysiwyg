@@ -1,6 +1,6 @@
 # Compose It ( WYSIWYG Editor )
 
-A small and customizable content editor. Check out the [demo](https://lancetipton.github.io/Compose-It/)
+A small (141kb) and customizable content editor. Check out the [demo](https://lancetipton.github.io/Compose-It/)
 
 ## Install
 
