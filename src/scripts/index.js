@@ -113,6 +113,7 @@ const createEditor = (settings, buttons) => {
 
       const { isStatic, showOnClick, onSelect, classes } = settings
       const selection = getSelection()
+      if (!selection) return null
       // Find the closest dom node to search for the editor dom node
       // text nodes don't have a .closest method, so we need on that does
       const findNode = selection.anchorNode && selection.anchorNode.nodeType === 3
@@ -225,6 +226,8 @@ const createEditor = (settings, buttons) => {
         case 'Backspace': {
           !isStatic && this.updateToolsPos()
           const selection = getSelection()
+          if (!selection) return null
+
           const selectedText  = getSelectedText(selection)
           if (
             selection.isCollapsed &&

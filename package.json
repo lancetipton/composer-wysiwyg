@@ -1,6 +1,6 @@
 {
   "name": "compose-it",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Simple WYSIWYG",
   "author": "Lance Tipton <ltipton@tiptondigital.com>",
   "main": "build/ComposeIt.min.js",

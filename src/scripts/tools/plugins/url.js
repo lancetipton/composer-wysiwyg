@@ -7,9 +7,12 @@ import { getSelection } from '../../selection'
  * @return { void }
  */
 export const windowPrompt = ({ remove, message, action, settings, button }) => {
+  if(typeof window === 'undefined') return
 
   if (action === 'CreateLink'){
     const selection = getSelection()
+    if (!selection) return null
+
     const checkNode = selection.anchorNode.nodeType === 3
       ? selection.anchorNode.parentNode
       : selection.anchorNode

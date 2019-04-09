@@ -2,12 +2,17 @@
  * Gets the currently selected text content
  * @return { object } selected rage of text
  */
-export const getSelection = () =>
-  window.getSelection
-    ? window.getSelection()
-    : document.selection
-      ? document.selection
-      : null
+export const getSelection = () => {
+  if(typeof window === 'undefined') return
+  else {
+    return window.getSelection
+      ? window.getSelection()
+      : document.selection
+        ? document.selection
+        : null
+  }
+}
+  
 
 /**
  * Gets the selected text content
@@ -15,10 +20,13 @@ export const getSelection = () =>
  * @return { string } - selected text
  */
 export const getSelectedText = selection => {
-  selection = selection || getSelection()
-  return window.getSelection
-    ? selection && selection.toString()
-    : selection && selection.createRange && selection.createRange().text
+  if(typeof window === 'undefined') return ''
+  else {
+    selection = selection || getSelection()
+    return window.getSelection
+      ? selection && selection.toString()
+      : selection && selection.createRange && selection.createRange().text
+  }
 }
 
 /**
