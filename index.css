@@ -2,6 +2,12 @@ html, html *, *:focus {
   outline: 0;
 }
 
+.git-hub-fork {
+  position: fixed;
+  top: 31px;
+  right: 0px;
+}
+
 nav.compose-nav {
   position: fixed;
   width: 100%;
@@ -35,7 +41,7 @@ nav.compose-nav > ul > li.compose-link-wrapper a.compose-link {
 }
 
 nav.compose-nav > ul > li.compose-link-wrapper a.compose-link:hover {
-  color: #4caf50;
+  color: #03a9f4;
 }
 
 
