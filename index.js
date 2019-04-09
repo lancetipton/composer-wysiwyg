@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function(){
     // The element to attach the editor
     popOpts.element = popEditorEl
     // Default content for the editor
-    popOpts.content = 'Pop Editor overwriting the default content'
+    popOpts.content = 'Have a story? Compose it...'
     // Add the tools, with the link tool as text to get the registered default
     popOpts.tools = tools.concat([ 'link' ])
 
