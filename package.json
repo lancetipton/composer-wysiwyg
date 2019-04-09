@@ -4,7 +4,7 @@
   "description": "Simple WYSIWYG",
   "author": "Lance Tipton <ltipton@tiptondigital.com>",
   "main": "build/ComposeIt.min.js",
-  "module": "src/scripts/index.js",
+  "module": "build/ComposeIt.min.js",
   "license": "ISC",
   "repository": {
     "type": "git",
