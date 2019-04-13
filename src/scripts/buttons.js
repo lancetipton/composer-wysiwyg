@@ -110,6 +110,11 @@ const buildButton = (BtnCls, tool, contentEl, settings) => {
   button.innerHTML = tool.icon
   button.title = tool.title
   button.onclick = e => {
+    if(e){
+      e.preventDefault && e.preventDefault()
+      e.stopPropagation && e.stopPropagation()
+    }
+
     if (tool.cmd === 'dropdown')
       BtnCls.toggleDropdown(button)
     else {
@@ -124,7 +129,6 @@ const buildButton = (BtnCls, tool, contentEl, settings) => {
     }
 
     contentEl.focus()
-    e.preventDefault()
   }
 
   return button
