@@ -79,9 +79,10 @@ document.addEventListener('DOMContentLoaded', function(){
     popOpts.element = popEditorEl
     // Default content for the editor
     popOpts.content = 'compose...'
+    popOpts.overRideContent = true
     // Add the tools, with the link tool as text to get the registered default
     popOpts.tools = tools.concat([ 'link' ])
-
+    
     // Turn on settings to remove the editor on save and cancel
     popOpts.destroyOnSave = true
     popOpts.destroyOnCancel = true

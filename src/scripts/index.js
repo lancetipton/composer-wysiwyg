@@ -102,7 +102,7 @@ const createEditor = (settings, buttons) => {
       if (!isStatic && showOnClick && !toolsVisible)
         this.toggleTools('on')
 
-      this.buttons.clearDropdown()
+      this.buttons && this.buttons.clearDropdown()
     }
 
     /**
@@ -183,7 +183,7 @@ const createEditor = (settings, buttons) => {
       const resp = checkCall(onChange, this.contentEl.innerHTML, observer, this)
       if (resp === false) return null
 
-      this.buttons.clearDropdown()
+      this.buttons && this.buttons.clearDropdown()
       const el = observer[0].target
       const firstChild = el.firstChild
       // Clean up the the element content if needed
@@ -193,8 +193,11 @@ const createEditor = (settings, buttons) => {
 
       // Check if the actions should be disabled
 
-      const { disableIds, state } = checkListDisable(this.buttons.getCache())
-      disableIds && disableIds.length && this.buttons.disableToggle(state, disableIds)
+      const { disableIds, state } = checkListDisable(this.buttons && this.buttons.getCache())
+      disableIds &&
+        disableIds.length &&
+        this.buttons &&
+        this.buttons.disableToggle(state, disableIds)
 
       // Check if the tools should be turned on
       if (!toolsVisible) this.toggleTools('on')
@@ -216,7 +219,7 @@ const createEditor = (settings, buttons) => {
       const resp = checkCall(settings.onKeyDown, event, this)
       if (resp === false) return null
 
-      this.buttons.clearDropdown()
+      this.buttons && this.buttons.clearDropdown()
 
       if (
         !this.contentEl ||
@@ -259,7 +262,7 @@ const createEditor = (settings, buttons) => {
     */
     updateToolsPos = (selection, selPos) => {
       const { isStatic, offset, onUpdateToolPos } = settings
-      if (isStatic || !this.popper) return null
+      if (isStatic || !this.popper || !this.active) return null
 
       selPos = selPos || getSelectionCoords(selection)
       if (!selPos) return null

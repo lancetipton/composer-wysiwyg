@@ -1,20 +1,21 @@
-export const appendChild = (parent, child) => parent.appendChild(child)
+export const appendChild = (parent, child) => parent && child && parent.appendChild(child)
 
-export const prependChild = (parent, child) => parent.prepend(child)
+export const prependChild = (parent, child) => parent && child && parent.prepend(child)
 
-export const createElement = tag => document.createElement(tag)
+export const createElement = tag => tag && document.createElement(tag)
 
-export const queryCommandState = command => document.queryCommandState(command)
+export const queryCommandState = command => command && document.queryCommandState(command)
 
-export const queryCommandValue = command => document.queryCommandValue(command)
+export const queryCommandValue = command => command && document.queryCommandValue(command)
 
-export const exec = (command, value = null) => document.execCommand(command, false, value)
+export const exec = (command, value = null) =>
+  command && document.execCommand(command, false, value)
 
 export const removeEventListener = (parent, type, listener) =>
-  parent.removeEventListener(type, listener)
+  parent && parent.removeEventListener(type, listener)
 
 export const addEventListener = (parent, type, listener) =>
-  parent.addEventListener(type, listener)
+  parent && parent.addEventListener(type, listener)
 
 export const getMutationObserver = (elementSelector, callback) => {
   const observer = new MutationObserver(callback)
@@ -32,6 +33,8 @@ export const getMutationObserver = (elementSelector, callback) => {
 export const debounce = (func, wait = 250, immediate = false) => {
   let timeout
   return (...args) => {
+    if(typeof func !== 'function') return null
+
     let context = this
     let later = () => {
       timeout = null
@@ -43,7 +46,7 @@ export const debounce = (func, wait = 250, immediate = false) => {
     clearTimeout(timeout)
     timeout = setTimeout(later, wait)
     if (callNow) {
-      func.apply(context, args)
+      return typeof func === 'function' && func.apply(context, args)
     }
   }
 }
@@ -68,6 +71,8 @@ export const checkCall = (method, ...params) => {
  * @return {void}
  */
 export const checkListDisable = (buttons) => {
+  if(!buttons) return
+
   const isUl = queryCommandState('insertUnorderedList')
   const isOl = queryCommandState('insertOrderedList')
   const state = isUl != false || isOl != false

@@ -45,6 +45,7 @@ export const DEF_SETTINGS =  Object.freeze({
   matchParentWidth: undefined,
   destroyOnSave: true,
   destroyOnCancel: true,
+  overRideContent: false,
   changeDebounce: 50,
   iconType: 'far',
   defaultParagraphSeparator: 'div',

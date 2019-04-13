@@ -289,7 +289,12 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
           // * If not set, will use element.innerHTML
           // * IMPORTANT - gets set every time the init method is called on the element
         content: 'I am the initial content',
-
+        
+        // Overrides the the innerHTML of the element with the passed in content ( above )
+        // If not set, it will try to use the elements innerHTML
+        // If the element is empty, it will use the content setting above
+        overRideContent: false
+        
         // Should the editor be destroyed after the save button is pressed
         destroyOnSave: true,
 
@@ -380,6 +385,9 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
           // * Default to undefined
           // * Set as a function to use
           // * Return false to bypass the default method action
+        
+        // Logs an event message when the event is fired
+        log: false
 
         // Called when the Editor content is changed
         onChange: undefined

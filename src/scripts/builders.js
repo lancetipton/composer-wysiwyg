@@ -159,8 +159,11 @@ const buildContentActions = (settings, onSave, onCancel) => {
  * @return { dom node } - build dom node that holds the editable content
  */
 const buildContent = (settings, Editor) => {
-  const { isStatic, element, classes, content, matchParentWidth } = settings
-  const addContent = content || element.innerHTML || EMPTY_INPUT
+  const { isStatic, element, classes, content, matchParentWidth, overRideContent } = settings
+  const addContent = overRideContent
+    ? content || element.innerHTML || EMPTY_INPUT
+    : element.innerHTML || content || EMPTY_INPUT
+  
   const contentEl = !isStatic && element || createElement('div')
   isStatic && contentEl.classList.add('static')
   element.innerHTML = ''
