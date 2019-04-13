@@ -262,7 +262,7 @@ const createEditor = (settings, buttons) => {
     */
     updateToolsPos = (selection, selPos) => {
       const { isStatic, offset, onUpdateToolPos } = settings
-      if (isStatic || !this.popper || !this.active) return null
+      if (isStatic || !this.popper || !this.isActive) return null
 
       selPos = selPos || getSelectionCoords(selection)
       if (!selPos) return null
