@@ -81,3 +81,7 @@ export const checkListDisable = (buttons) => {
 
   return { disableIds, state }
 }
+
+let SHOW_LOGS
+export const setLogs = log => (SHOW_LOGS = log)
+export const logData = (...args) => (SHOW_LOGS && console.dir(...args))

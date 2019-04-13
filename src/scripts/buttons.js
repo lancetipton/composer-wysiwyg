@@ -4,7 +4,8 @@ import {
   removeEventListener,
   queryCommandState,
   createElement,
-  exec
+  exec,
+  logData
 } from './utils'
 import { BTN_ID_EXT, FORMAT_BLOCK, INSERT_HTML } from './constants'
 
@@ -114,7 +115,9 @@ const buildButton = (BtnCls, tool, contentEl, settings) => {
       e.preventDefault && e.preventDefault()
       e.stopPropagation && e.stopPropagation()
     }
-
+    
+    logData('Button Click Event', tool)
+    
     if (tool.cmd === 'dropdown')
       BtnCls.toggleDropdown(button)
     else {
@@ -255,6 +258,8 @@ const createButtons = settings => {
   * @return { void }
   */
     toggleDropdown = button => {
+      logData('Toggle Dropdown Event')
+      
       if (this.activeDropdown === button)
         return this.clearDropdown()
       else this.activeDropdown && this.clearDropdown()

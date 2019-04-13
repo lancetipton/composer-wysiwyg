@@ -57,6 +57,8 @@ document.addEventListener('DOMContentLoaded', function(){
     showOnClick: true,
     // Font awesome icon type ( Default is far )
     iconType: 'fas',
+    // Toggle logging events
+    log: true,
     // Set editor to add changes as style tags
     styleWithCSS: true,
     styles: {},

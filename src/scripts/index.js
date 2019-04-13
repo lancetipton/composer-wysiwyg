@@ -15,6 +15,8 @@ import {
   checkListDisable,
   getMutationObserver,
   checkCall,
+  setLogs,
+  logData
 } from './utils'
 import {
   buildContent,
@@ -80,6 +82,7 @@ const createEditor = (settings, buttons) => {
     }
 
     onClick = event => {
+      logData('On Click Event')
       if (event.currentTarget === document){
         this.isActive = false
         return null
@@ -109,6 +112,8 @@ const createEditor = (settings, buttons) => {
     * @return { function } function called when the selection changes
     */
     onSelChange = e => {
+      logData('On Select Event')
+
       if (settings.destroy || this.isActive === false) return null
 
       const { isStatic, showOnClick, onSelect, classes } = settings
@@ -167,6 +172,7 @@ const createEditor = (settings, buttons) => {
     * @return { void }
     */
     onContentChange = observer => {
+      logData('On Content Change Event')
       if (settings.destroy ||  settings.codeEditActive || this.isActive === false)
         return null
 
@@ -201,6 +207,8 @@ const createEditor = (settings, buttons) => {
     * @return { boolean } - should do default browser behavior
     */
     onKeyDown = event => {
+      logData('On Keydown Event', event.key)
+      
       if (settings.destroy || this.isActive === false) return null
 
       const { isStatic, defParaSep } = settings
@@ -305,10 +313,13 @@ const createEditor = (settings, buttons) => {
         toolsRoot.classList.remove(classes.HIDDEN)
         toolsVisible = true
       }
+      logData('Toggle Tools: ', toolsVisible)
 
     }
 
     destroy = () => {
+      logData('Destroy Editor')
+      
       this.isActive = false
       settings.destroy = true
       // Remove mutation observer
@@ -342,6 +353,7 @@ const checkActiveButtons = (findNode, Editor, selCls) => {
 
 const onSave = settings => {
   return e => {
+    logData('On Save Event')
     settings.onSave && settings.onSave(
       settings.Editor.contentEl.innerHTML,
       e,
@@ -354,6 +366,7 @@ const onSave = settings => {
 
 const onCancel = settings => {
   return e => {
+    logData('On Cancel Event')
     // Reset the element content
     settings.Editor.contentEl.innerHTML = settings.content || ''
     settings.onCancel && settings.onCancel(e, settings.Editor)
@@ -370,7 +383,10 @@ const onCancel = settings => {
 const init = opts => {
   if (!opts || !opts.element)
     throw new Error('element is required when calling ComposeIt.init')
-
+  
+  // Set option to show logs
+  setLogs(opts.log)
+  logData('Init Editor')
   const settings = buildSettings(opts)
   const tools = buildTools(settings || {})
   const toolbar = buildToolBar(settings.classes.TOOL_BAR)
