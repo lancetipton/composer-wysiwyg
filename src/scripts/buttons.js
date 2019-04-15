@@ -222,7 +222,12 @@ const createButtons = settings => {
     * @return { object } - this.cache
     */
     getCache = () => this.cache
-
+    /**
+    * Gets a single cached tool button based on type param
+    * @return { object } - cached button
+    */
+    getButton = type => this.cache && this.cache[buildId(type)]
+    
     /**
     * Toggles disabled on tools buttons based on passed in state
     * @param  { boolean } state - what the disabled state should be

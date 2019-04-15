@@ -50,7 +50,18 @@ const setupEditor = (settings, buttons) => {
 }
 
 const createEditor = (settings, buttons) => {
-  const handelKeys = { Backspace: true, Tab: true, Enter: true }
+  const handelKeys = {
+    Backspace: true,
+    Tab: true,
+    Enter: true,
+  }
+  const handelCodes = {
+    73: 'i',
+    74: 'j',
+    75: 'k',
+    83: 's',
+    85: 'u',
+  }
   let toolsVisible
   let mutationObs
 
@@ -211,7 +222,7 @@ const createEditor = (settings, buttons) => {
     */
     onKeyDown = event => {
       logData('On Keydown Event', event.key)
-      
+
       if (settings.destroy || this.isActive === false) return null
 
       const { isStatic, defParaSep } = settings
@@ -220,10 +231,16 @@ const createEditor = (settings, buttons) => {
       if (resp === false) return null
 
       this.buttons && this.buttons.clearDropdown()
+      const modKey = window.navigator.platform.match("Mac") 
+        ? event.metaKey 
+        : event.ctrlKey
 
       if (
         !this.contentEl ||
-        !handelKeys[event.key] ||
+        (
+          !handelKeys[event.key] && !modKey ||
+          (modKey && !handelCodes[event.keyCode])
+        ) ||
         !event.target ||
         event.target !== this.contentEl
       ) return null
@@ -248,6 +265,32 @@ const createEditor = (settings, buttons) => {
           ){
             // If no el content, reset it, and return
             return event.preventDefault()
+          }
+        }
+        default: {
+          event.preventDefault()
+          switch (event.keyCode){
+            case 73 : {
+              const buttonRef = this.buttons.getButton('italic')
+              return buttonRef && buttonRef.button && buttonRef.button.click()
+            }
+            case 74 : {
+              const buttonRef = this.buttons.getButton('strike-through')
+              return buttonRef && buttonRef.button && buttonRef.button.click()
+            }
+            case 75 : {
+              const buttonRef = this.buttons.getButton('link')
+              return buttonRef && buttonRef.button && buttonRef.button.click()
+            }
+            // case 83 : {
+            //   // const buttonRef = this.buttons.getButton('save')
+            //   // return buttonRef && buttonRef.button && buttonRef.button.click()
+            //   break
+            // }
+            case 85 : {
+              const buttonRef = this.buttons.getButton('underline')
+              return buttonRef && buttonRef.button && buttonRef.button.click()
+            }
           }
         }
       }
