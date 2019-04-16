@@ -57,6 +57,8 @@ document.addEventListener('DOMContentLoaded', function(){
     showOnClick: true,
     // Font awesome icon type ( Default is far )
     iconType: 'fas',
+    // Toggle logging events
+    // log: true,
     // Set editor to add changes as style tags
     styleWithCSS: true,
     styles: {},
@@ -77,9 +79,10 @@ document.addEventListener('DOMContentLoaded', function(){
     popOpts.element = popEditorEl
     // Default content for the editor
     popOpts.content = 'compose...'
+    popOpts.overRideContent = true
     // Add the tools, with the link tool as text to get the registered default
     popOpts.tools = tools.concat([ 'link' ])
-
+    
     // Turn on settings to remove the editor on save and cancel
     popOpts.destroyOnSave = true
     popOpts.destroyOnCancel = true
@@ -110,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function(){
       {
         // Name is required when overriding as an object
         name: 'link',
+        key: [ 'cmd', 'k' ],
         icon: compose.registerTools.buildIcon(`fas fa-link`),
         title: 'Link',
         action: (tool, settings, button, e) => {
@@ -127,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function(){
     // Register some tools, before calling the init method
     compose.registerTools({
       link: {
+        key: [ 'cmd', 'k' ],
         icon: compose.registerTools.buildIcon(`fas fa-link`),
         title: 'Link',
         action: (tool, settings, button, e) => {
@@ -136,8 +141,9 @@ document.addEventListener('DOMContentLoaded', function(){
         }
       },
       alert: {
+        key: [ 'cmd', 'alt', 'a' ],
         icon: compose.registerTools.buildIcon(`fas fa-exclamation`),
-        title: 'Link',
+        title: 'Alert',
         action: (tool, settings, button, e) => {
           alert('Added alert tool!')
         }
