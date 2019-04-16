@@ -63,9 +63,7 @@ document.addEventListener('DOMContentLoaded', function(){
     styleWithCSS: true,
     styles: {},
   }
-  
-  compose.registerTheme({ theme: 'light' })
-  
+
   let popComp
   let hasDblClk = false
   const buildPopEditor = () => {
