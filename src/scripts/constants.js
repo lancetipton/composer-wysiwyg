@@ -5,7 +5,7 @@ export const FORMAT_BLOCK = 'formatBlock'
 export const INSERT_HTML = 'insertHTML'
 export const STYLE_ID = 'comp-styles'
 export const CODE_EDITOR_ID = 'composer-code-edit'
-
+export const KEY_MODS = [ 'shift', 'alt', 'ctrl', 'cmd' ]
 const themes = {
   light: {
     toolBorder: '#40413C',
@@ -37,9 +37,10 @@ export const DEF_THEME = Object.freeze({
   speeds: Object.freeze({
     showTools: '0.75s ease-in-out'
   }),
-  shadow: '2px 2px 8px rgba(0,0,0,0.2)',
+  shadow: '2px 4px 4px rgba(0,0,0,0.2)',
   maxToolsHeight: 29,
 })
+
 
 export const DEF_SETTINGS =  Object.freeze({
   matchParentWidth: undefined,

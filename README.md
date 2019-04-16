@@ -165,6 +165,19 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
         * Key of the tool in the `Default tools` object
         * Must match one of the keys from the `Default tools` section above to override that tool
         * Or used to define a custom tool when registering it
+        * **REQUIRED** when added to the tools array
+        * **NOT REQUIRED** when registering a tool with the `ComposeIt.registerTools` method
+      * key ( Array )
+        * Optional
+        * Must be an array of the keyboard cmd that will execute the action
+        * At least one modifier key is required for all key commands
+        * Modifier key can be one of `shift, alt, ctrl, cmd`
+        * More then one modifier or key can be added to the array
+        * Example
+          * `key: [ 'cmd', 'alt', 'u', 'q' ]`
+          * User must press `cmd+alt+u+q` to execute the action
+          * Keys do **NOT** need to be pressed in the same order
+            * Array Order is **NOT** considered
       * el ( String )
         * html string element; i.e. ```"<p>"```
         * passed to `document.execCommand` when `action` property is `formatBlock || insertHTML`
@@ -195,6 +208,7 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
           alert: {
             icon: ComposeIt.registerTools.buildIcon(`fas fa-exclamation`),
             title: 'Alert',
+            key: [ 'alt', 'a' ],
             action: (tool, settings, button, e) => {
               // Will show this alert when tool button is pressed
               alert('Added alert tool!')
@@ -212,6 +226,7 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
             // ...other tools
             {
               name: 'alert'
+              key: [ 'alt', 'a' ],
               icon: ComposeIt.registerTools.buildIcon(`fas fa-exclamation`),
               title: 'Alert',
               action: (tool, settings, button, e) => {
@@ -229,6 +244,8 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
         ComposeIt.registerTools({
           link: {
             icon: ComposeIt.registerTools.buildIcon(`fas fa-link`),
+            // User must press `cmd+alt+k+u` to execute the action
+            key: [ 'cmd', 'alt', 'k', 'u' ],
             title: 'Link',
             action: (tool, settings, button, e) => {
               alert('Overwrite the link action with www.google.com')
@@ -251,6 +268,9 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
             {
               // REQUIRED - must be one from the list defined in default tools section above
               name: 'link',
+              // Key is optional
+              // The user must press `shift+ctrl+x` to execute the action
+              key: [ 'shift', 'ctrl', 'x' ],
               icon: ComposeIt.registerTools.buildIcon(`fas fa-link`),
               title: 'Link',
               action: (tool, settings, button, e) => {
@@ -347,6 +367,15 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
           y: 35
         },
         
+        /* -- Mutation Observer ( on change event )  -- */
+        // Defaults to watching everything
+        // Set to property to false to not call onChange for that property
+        observer: {
+          attributes: true,
+          childList: true,
+          characterData: true,
+          subtree: true,
+        },
         /* -- Tools  -- */
         // Set true to allow not passing a tools array, and have all tools added to the editor
         allowDefTools: undefined  // ( boolean )
@@ -409,6 +438,9 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
 
         // Called when a key is pressed
         onKeyDown: undefined
+
+        // Called when a key is depressed
+        onKeyUp: undefined
 
         // Called when the Editor is clicked on
         onClick: undefined
@@ -578,6 +610,7 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
         // Custom defined tool
         alert: {
           icon: compose.registerTools.buildIcon(`fas fa-exclamation`),
+          key: [ 'alt', 'a' ],
           title: 'Alert',
           action: (tool, settings, button, e) => {
             // Will show alert when clicked
@@ -588,6 +621,7 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
         link: {
           icon: compose.registerTools.buildIcon(`fas fa-link`),
           title: 'Link',
+          key: [ 'cmd', 'k' ],
           action: (tool, settings, button, e) => {
             alert('Overwrite the link action with www.google.com')
             // Use the exec command to update the editor

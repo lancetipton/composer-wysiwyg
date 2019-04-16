@@ -11,6 +11,7 @@ const clearEvents = (settings) => {
       removeEventListener(Editor.contentEl, 'compositionstart', Editor.composition.start)
       removeEventListener(Editor.contentEl, 'compositionend', Editor.composition.end)
       removeEventListener(Editor.contentEl, 'keydown', Editor.onKeyDown)
+      removeEventListener(Editor.contentEl, 'keyup', Editor.onKeyUp)
       removeEventListener(Editor.contentEl, 'click', Editor.onClick)
     }
     catch (e){

@@ -21,6 +21,7 @@ import {
 import {
   buildContent,
   buildContentActions,
+  buildKeyCmds,
   buildRoot,
   buildSettings,
   buildStyles,
@@ -39,9 +40,9 @@ const StyleLoader = new StylesLoader()
  * @param  { object } settings - props that define how WYSIWYG editor functions
  * @return { void }
  */
-const setupEditor = (settings, buttons) => {
+const setupEditor = (settings, buttons, tools) => {
   const { defParaSep, styleWithCSS } = settings
-  const editorCls = createEditor(settings, buttons)
+  const editorCls = createEditor(settings, buttons, tools)
   const Editor = new editorCls()
 
   styleWithCSS && exec('styleWithCSS')
@@ -49,32 +50,78 @@ const setupEditor = (settings, buttons) => {
   settings.Editor = Editor
 }
 
-const createEditor = (settings, buttons) => {
+const createEditor = (settings, buttons, tools) => {
   const handelKeys = {
     Backspace: true,
     Tab: true,
     Enter: true,
   }
-  const handelCodes = {
-    73: 'i',
-    74: 'j',
-    75: 'k',
-    83: 's',
-    85: 'u',
+  let keyPCache
+  const keyCmds = buildKeyCmds(tools)
+  const getKeyPress = event => {
+    const keyPress = event.key !== 'Meta' && String.fromCharCode(event.keyCode)
+    if(!keyPCache){
+      const keyMatch = keyPress && keyPress.toLowerCase()
+      if(keyMatch){
+        keyPCache = { mod: [], key: [ keyMatch ] }
+        event.shiftKey && keyPCache.mod.push('shift')
+        event.altKey && keyPCache.mod.push('alt')
+        event.ctrlKey && keyPCache.mod.push('ctrl')
+        event.metaKey && keyPCache.mod.push('cmd')
+        keyPCache.mod.sort()
+      }
+    }
+    else {
+      const keyMatch = keyPress && keyPress.toLowerCase()
+      if(keyMatch){
+        keyPCache.key.push(keyMatch)
+        keyPCache.key.sort()
+      }
+    }
   }
+  
+  const clearKeyCache = () => setTimeout(
+    () => (keyPCache = undefined),
+    settings.keyTimeout || 500
+  ) && undefined
+  
+  const compareKeyPress = buttons => {
+    let hasMatch
+    Object
+      .entries(keyCmds)
+      .map(([ key, value ]) => {
+        if(hasMatch) return
+        const matchMod = value.mod.join('') === keyPCache.mod.join('')
+        const matchKey = value.key.join('') === keyPCache.key.join('')
+        if(matchMod && matchKey){
+          const buttonRef = buttons && buttons.getButton(key)
+          if(!buttonRef || !buttonRef.button)
+            return null
+
+          hasMatch = true
+          buttonRef.button && buttonRef.button.click()
+          clearKeyCache()
+        }
+      })
+    return hasMatch
+  }
+
+  
   let toolsVisible
   let mutationObs
-
+  
   const addEvents = (settings, Editor) => {
     addEventListener(Editor.contentEl, 'click', Editor.onClick)
     addEventListener(Editor.contentEl, 'compositionstart', Editor.composition.start)
     addEventListener(Editor.contentEl, 'compositionend', Editor.composition.end)
     addEventListener(Editor.contentEl, 'keydown', Editor.onKeyDown)
+    addEventListener(Editor.contentEl, 'keyup', Editor.onKeyUp)
     addEventListener(document, 'selectionchange', Editor.onSelChange)
     addEventListener(document, 'click', Editor.onClick)
     mutationObs = getMutationObserver(
       Editor.contentEl,
-      debounce(Editor.onContentChange, settings.changeDebounce)
+      debounce(Editor.onContentChange, settings.changeDebounce),
+      settings
     )
   }
 
@@ -94,6 +141,8 @@ const createEditor = (settings, buttons) => {
 
     onClick = event => {
       logData('On Click Event')
+      // Clear keyboard cache on every click event
+      keyPCache = undefined
       if (event.currentTarget === document){
         this.isActive = false
         return null
@@ -125,6 +174,8 @@ const createEditor = (settings, buttons) => {
     onSelChange = e => {
       logData('On Select Event')
 
+      // Clear keyboard cache when the selection changes
+      keyPCache = undefined
       if (settings.destroy || this.isActive === false) return null
 
       const { isStatic, showOnClick, onSelect, classes } = settings
@@ -214,7 +265,14 @@ const createEditor = (settings, buttons) => {
       if (!toolsVisible) this.toggleTools('on')
 
     }
+    
+    onKeyUp = event => {
+      if(settings.destroy || checkCall(settings.onKeyUp, event, this) === false)
+        return null
 
+      if(keyPCache) keyPCache = undefined
+    }
+    
     /**
     * Handles input from the keyboard
     * @param  { object } event - browser window event
@@ -223,38 +281,47 @@ const createEditor = (settings, buttons) => {
     onKeyDown = event => {
       logData('On Keydown Event', event.key)
 
-      if (settings.destroy || this.isActive === false) return null
-
-      const { isStatic, defParaSep } = settings
-      // If response is false, just return
-      const resp = checkCall(settings.onKeyDown, event, this)
-      if (resp === false) return null
-
-      this.buttons && this.buttons.clearDropdown()
-      const modKey = window.navigator.platform.match("Mac") 
-        ? event.metaKey 
-        : event.ctrlKey
 
       if (
+        settings.destroy ||
+        this.isActive === false ||
+        event.isComposing ||
+        event.keyCode === 229
+      ) return
+
+      const { isStatic, defParaSep } = settings
+      // If passed in onKeyDown is false, just return
+      if (checkCall(settings.onKeyDown, event, this) === false){
+        keyPCache = undefined
+        return
+      }
+      
+      this.buttons && this.buttons.clearDropdown()
+
+      getKeyPress(event)
+      const hasKeyMod = Boolean(keyPCache && keyPCache.mod && keyPCache.mod.length)
+      const hasKeyPress = Boolean(keyPCache && keyPCache.key && keyPCache.key.length)
+      if (
         !this.contentEl ||
-        (
-          !handelKeys[event.key] && !modKey ||
-          (modKey && !handelCodes[event.keyCode])
-        ) ||
+        (!handelKeys[event.key] && (!hasKeyMod || !hasKeyPress)) ||
         !event.target ||
         event.target !== this.contentEl
-      ) return null
-
+      ) return
+    
       switch (event.key){
-        case 'Tab': return event.preventDefault()
+        case 'Tab': {
+          keyPCache = undefined
+          return event.preventDefault()
+        }
         case 'Enter': {
+          keyPCache = undefined
           exec(PARA_SEP_STR, `<${defParaSep}>`)
           return setTimeout(() => (this.updateToolsPos()), 0)
         }
         case 'Backspace': {
           !isStatic && this.updateToolsPos()
           const selection = getSelection()
-          if (!selection) return null
+          if (!selection) return
 
           const selectedText  = getSelectedText(selection)
           if (
@@ -268,30 +335,9 @@ const createEditor = (settings, buttons) => {
           }
         }
         default: {
-          event.preventDefault()
-          switch (event.keyCode){
-            case 73 : {
-              const buttonRef = this.buttons.getButton('italic')
-              return buttonRef && buttonRef.button && buttonRef.button.click()
-            }
-            case 74 : {
-              const buttonRef = this.buttons.getButton('strike-through')
-              return buttonRef && buttonRef.button && buttonRef.button.click()
-            }
-            case 75 : {
-              const buttonRef = this.buttons.getButton('link')
-              return buttonRef && buttonRef.button && buttonRef.button.click()
-            }
-            // case 83 : {
-            //   // const buttonRef = this.buttons.getButton('save')
-            //   // return buttonRef && buttonRef.button && buttonRef.button.click()
-            //   break
-            // }
-            case 85 : {
-              const buttonRef = this.buttons.getButton('underline')
-              return buttonRef && buttonRef.button && buttonRef.button.click()
-            }
-          }
+          return compareKeyPress(this.buttons)
+            ? event.preventDefault()
+            : (keyPCache = undefined)
         }
       }
     }
@@ -440,7 +486,7 @@ const init = opts => {
   const buttons = new btnCls()
 
   // Add Editor / WYSIWYG settings to the document
-  setupEditor(settings, buttons)
+  setupEditor(settings, buttons, tools)
   buildToolBtns(buttons, tools, toolbar, settings)
 
   const contentActions = buildContentActions(

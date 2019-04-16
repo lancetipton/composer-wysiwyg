@@ -57,24 +57,28 @@ const defaultTools = settings => {
       action: 'exec'
     },
     underline: {
+      key: [ 'cmd', 'u' ],
       icon: buildIcon(`${faType} fa-underline`),
       title: 'Underline',
       cmd: 'underline',
       action: 'exec'
     },
     strikethrough: {
+      key: [ 'cmd', 'o' ],
       icon: buildIcon(`${faType} fa-strikethrough`),
       title: 'Strike-through',
       cmd: 'strikeThrough',
       action: 'exec'
     },
     heading: {
+      key: [ 'cmd', 'h' ],
       icon: buildIcon(`${faType} fa-heading`),
       title: 'Heading',
       cmd: 'dropdown',
       listDisable: true,
       options: {
         heading1: {
+          key: [ 'cmd', 'h', '1' ],
           icon: buildIcon('', '<b>1</b>'),
           title: 'Heading 1',
           el: '<h1>',
@@ -82,6 +86,7 @@ const defaultTools = settings => {
           action: FORMAT_BLOCK
         },
         heading2: {
+          key: [ 'cmd', 'h', '2' ],
           icon: buildIcon('', '<b>2</b>'),
           title: 'Heading 2',
           el: '<h2>',
@@ -89,6 +94,7 @@ const defaultTools = settings => {
           action: FORMAT_BLOCK
         },
         heading3: {
+          key: [ 'cmd', 'h', '3' ],
           icon: buildIcon('', '<b>3</b>'),
           title: 'Heading 3',
           el: '<h3>',
@@ -96,6 +102,7 @@ const defaultTools = settings => {
           action: FORMAT_BLOCK
         },
         heading4: {
+          key: [ 'cmd', 'h', '4' ],
           icon: buildIcon('', '<b>4</b>'),
           title: 'Heading 4',
           el: '<h4>',
@@ -103,6 +110,7 @@ const defaultTools = settings => {
           action: FORMAT_BLOCK
         },
         heading5: {
+          key: [ 'cmd', 'h', '5' ],
           icon: buildIcon('', '<b>5</b>'),
           title: 'Heading 5',
           el: '<h5>',
@@ -110,6 +118,7 @@ const defaultTools = settings => {
           action: FORMAT_BLOCK
         },
         heading6: {
+          key: [ 'cmd', 'h', '6' ],
           icon: buildIcon('', '<b>6</b>'),
           title: 'Heading 6',
           el: '<h6>',
@@ -119,17 +128,20 @@ const defaultTools = settings => {
       }
     },
     dent: {
+      key: [ 'cmd', 'd' ],
       icon: buildIcon(`${faType} fa-indent`),
       title: 'Dent',
       cmd: 'dropdown',
       options: {
         indent: {
+          key: [ 'cmd', 'd', 'i' ],
           icon: buildIcon(`${faType} fa-indent`),
           title: 'Indent',
           cmd: 'indent',
           action: 'exec'
         },
         outdent: {
+          key: [ 'cmd', 'd', 'o' ],
           icon: buildIcon(`${faType} fa-outdent`),
           title: 'Outdent',
           cmd: 'outdent',
@@ -138,29 +150,34 @@ const defaultTools = settings => {
       }
     },
     align: {
+      key: [ 'cmd', 'j' ],
       icon: buildIcon(`${faType} fa-align-justify`),
       title: 'Align',
       cmd: 'dropdown',
       options: {
         justifyLeft: {
+          key: [ 'cmd', 'j', 'l' ],
           icon: buildIcon(`${faType} fa-align-left`),
           title: 'Left',
           cmd: 'justifyLeft',
           action: 'exec'
         },
         justifyCenter: {
+          key: [ 'cmd', 'j', 'c' ],
           icon: buildIcon(`${faType} fa-align-center`),
           title: 'Center',
           cmd: 'justifyCenter',
           action: 'exec'
         },
         justifyRight: {
+          key: [ 'cmd', 'j', 'r' ],
           icon: buildIcon(`${faType} fa-align-right`),
           title: 'Right',
           cmd: 'justifyRight',
           action: 'exec'
         },
         justifyFull: {
+          key: [ 'cmd', 'j', 'f' ],
           icon: buildIcon(`${faType} fa-align-justify`),
           title: 'Justify',
           cmd: 'justifyFull',
@@ -170,17 +187,20 @@ const defaultTools = settings => {
       }
     },
     script: {
+      key: [ 'cmd', 'g' ],
       icon: buildIcon(`${faType} fa-subscript`),
       title: 'Script',
       cmd: 'dropdown',
       options: {
         subscript: {
+          key: [ 'cmd', 'g', '-' ],
           icon: buildIcon(`${faType} fa-subscript`),
           title: 'Subscript',
           cmd: 'subscript',
           action: 'exec'
         },
         superscript: {
+          key: [ 'cmd', 'g', '+' ],
           icon: buildIcon(`${faType} fa-superscript`),
           title: 'Superscript',
           cmd: 'superscript',
@@ -189,6 +209,7 @@ const defaultTools = settings => {
       }
     },
     paragraph: {
+      key: [ 'cmd', 'p' ],
       listDisable: true,
       icon: buildIcon(`${faType} fa-paragraph`),
       title: 'Paragraph',
@@ -196,6 +217,7 @@ const defaultTools = settings => {
       action: FORMAT_BLOCK
     },
     quote: {
+      key: [ 'cmd', 'q' ],
       listDisable: true,
       icon: buildIcon(`${faType} fa-quote-right`),
       title: 'Quote',
@@ -203,17 +225,20 @@ const defaultTools = settings => {
       action: FORMAT_BLOCK
     },
     list: {
+      key: [ 'cmd', 'l' ],
       icon: buildIcon(`${faType} fa-list`),
       title: 'List',
       cmd: 'dropdown',
       options: {
         olist: {
+          key: [ 'cmd', 'l', 'o' ],
           icon: buildIcon(`${faType} fa-list-ol`),
           title: 'Ordered List',
           cmd: 'insertOrderedList',
           action: 'exec'
         },
         ulist: {
+          key: [ 'cmd', 'l', 'u' ],
           icon: buildIcon(`${faType} fa-list-ul`),
           title: 'Unordered List',
           cmd: 'insertUnorderedList',
@@ -222,6 +247,7 @@ const defaultTools = settings => {
       }
     },
     code: {
+      key: [ 'cmd', 'm' ],
       icon: buildIcon(`${faType} fa-code`),
       title: 'Code',
       action: (tool, settings, button, e) => toggleCodeEditor({
@@ -231,12 +257,14 @@ const defaultTools = settings => {
       })
     },
     line: {
+      key: [ 'cmd', '-' ],
       icon: buildIcon(`${faType} fa-arrows-alt-h`),
       title: 'Horizontal Line',
       el: '<hr>',
       action: INSERT_HTML
     },
     link: {
+      key: [ 'cmd', 'k' ],
       icon: buildIcon(`${faType} fa-link`),
       title: 'Link',
       action: (tool, settings, button, e) => windowPrompt({
@@ -249,6 +277,7 @@ const defaultTools = settings => {
       })
     },
     image: {
+      key: [ 'cmd', 'i' ],
       icon: buildIcon(`${faType} fa-image`),
       title: 'Image',
       action: (tool, settings, button, e) => windowPrompt({

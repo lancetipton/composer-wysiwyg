@@ -9,6 +9,7 @@ import {
   EMPTY_INPUT,
   STYLE_ID,
   DEF_SETTINGS,
+  KEY_MODS,
 } from './constants'
 
 /**
@@ -186,6 +187,29 @@ const buildContent = (settings, Editor) => {
   return contentEl
 }
 
+
+const buildKeyCmds = (tools, keyCmds = {}) => (
+  Array.isArray(tools) && tools.reduce((keyCmds, tool) => {
+    if(!Array.isArray(tool.key)) return keyCmds
+
+    const cmd = { mod: [], key: [] }
+    Array.isArray(tool.key) && tool.key.map(key => {
+      KEY_MODS.indexOf(key.toLowerCase()) !== -1
+        ? cmd.mod.push(key.toLowerCase())
+        : cmd.key.push(key.toLowerCase())
+    })
+    cmd.mod.sort()
+    cmd.key.sort()
+    keyCmds[tool.title] = cmd
+
+    if(tool.options)
+      keyCmds = buildKeyCmds(Object.values(tool.options), keyCmds)
+
+    return keyCmds
+  }, keyCmds) || keyCmds
+)
+  
+
 /**
  * Joins settings together with default settings
  * @param  { object } [settings={}] - user settings to override the defaults
@@ -235,6 +259,7 @@ const joinSettings = (settings = {}) => {
 export {
   buildContent,
   buildContentActions,
+  buildKeyCmds,
   buildRoot,
   buildSettings,
   buildStyles,

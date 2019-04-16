@@ -90,14 +90,14 @@ const getStyles = (settings, styleId) => {
                 padding: 0,
                 backgroundColor: colors.background,
                 visibility: 'hidden',
-                top: 19,
-                width: '100%',
+                top: 24,
+                // width: '100%',
+                width: 'calc( 100% + 2px )',
                 textAlign: 'center',
                 boxShadow: shadow,
                 ...useStyles.dropList,
 
                 [`li`]: {
-                  borderTop: `1px solid ${colors.toolBorder}`,
                   paddingTop: `4px`,
                   paddingBottom: `4px`,
                   fontSize: `10px`,
@@ -218,7 +218,7 @@ const getStyles = (settings, styleId) => {
       transition: 'initial',
       opacity: 'initial',
       visibility: 'initial',
-      backgroundColor: colors.background,
+      backgroundColor: colors.background !== '#FFFFFF' && colors.background || '#F8F8F8',
       ...useStyles.root,
       [`.${useCls.WRAPPER}`]: {
         display: 'flex',
@@ -228,7 +228,20 @@ const getStyles = (settings, styleId) => {
         //----- TOOL BAR ----- //
         [`.${useCls.TOOL_BAR}`]: {
           boxShadow: 'none',
+          backgroundColor: colors.background !== '#FFFFFF' && colors.background || '#F8F8F8',
           ...useStyles.toolBar,
+
+          //----- BTN DROP DOWN ----- //
+          [`.${useCls.BTN_GRP} .${useCls.BTN_WRAP} .${useCls.BTN_DROP_LIST}`]: {
+            backgroundColor: colors.background !== '#FFFFFF' && colors.background || '#F8F8F8',
+            boxShadow: 'none',
+            ...useStyles.dropList,
+            [`li:first-of-type`]: {
+              border: 'none',
+              ...useStyles.toolFirstWrp,
+            },
+          },
+          
         },
 
         //----- BTN CONTENT ----- //
@@ -245,12 +258,13 @@ const getStyles = (settings, styleId) => {
     } || {},
 
     [`.${useCls.CONTENT}${styleId}.static`]: {
-      border: '2px solid #242a35',
+      border: `2px solid ${colors.background !== '#FFFFFF' && colors.background || '#F8F8F8'}`,
       borderTop: 'none',
       ['box-sizing']: 'border-box',
       ['-moz-box-sizing']: 'border-box',
       ['-webkit-box-sizing']: 'border-box',
       padding: '0px 5px',
+      float: 'left',
     } || {},
 
     //----- CONTENT ----- //

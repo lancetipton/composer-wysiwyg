@@ -17,13 +17,14 @@ export const removeEventListener = (parent, type, listener) =>
 export const addEventListener = (parent, type, listener) =>
   parent && parent.addEventListener(type, listener)
 
-export const getMutationObserver = (elementSelector, callback) => {
+export const getMutationObserver = (elementSelector, callback, settings={}) => {
   const observer = new MutationObserver(callback)
   const obsParams = {
     attributes: true,
     childList: true,
     characterData: true,
-    subtree: true
+    subtree: true,
+    ...(settings.observer || {})
   }
   observer.observe(elementSelector, obsParams)
 
