@@ -51,6 +51,7 @@ nav.compose-nav > ul > li.compose-link-wrapper a.compose-link:hover {
   justify-content: center;
   flex-direction: column;
   padding: 10px;
+  position: relative;
 }
 .editor-wrapper > h4,
 .editor-wrapper > div.editor {
@@ -126,6 +127,47 @@ nav.compose-nav > ul > li.compose-link-wrapper a.compose-link:hover {
   height: 200px;
 }
 
+.editor-wrapper > .dbl-click-edit.hide {
+  opacity: 0;
+  max-height: 0px;
+  padding: 0px;
+  border: 0px solid transparent;
+  left: 0px;
+  top: 0px;
+}
+
+.editor-wrapper > .dbl-click-edit {
+  position: absolute;
+  color: #4caf50;
+  border: 2px solid #4caf50;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  opacity: 1;
+  max-height: 40px;
+  overflow: hidden;
+  left: calc(50% - 92.5px);
+  top: calc(50% - 20px);
+}
+
+.editor-wrapper > .dbl-click-edit.hide {
+  opacity: 0;
+}
+
+.editor-wrapper > .dbl-click-edit > i {
+  padding-right: 2px;
+  transition: all 0.5s ease;
+}
+.editor-wrapper > .dbl-click-edit:hover {
+  border: 2px solid #03a9f4;
+  color: #03a9f4;
+}
+.editor-wrapper > .dbl-click-edit:hover > i {
+  transform: scale(1.3);
+}
+
 .editor-wrapper > .editor-static {
   width: 100%;
   height: 200px;
@@ -138,38 +180,52 @@ nav.compose-nav > ul > li.compose-link-wrapper a.compose-link:hover {
 
 .editor-wrapper .static-action-wrapper > button {
   float: right;
-  padding: 5px 20px;
+  padding: 5px 10px;
   font-size: 12px;
   cursor: pointer;
-  opacity: 0.75;
-  transition: opacity 1s ease;
   position: absolute;
-  width: 102px;
+  width: 95px;
+  border-radius: 30px;
+  transition: all 0.5s ease;
 }
 .editor-wrapper .static-action-wrapper > button.active {
-  opacity: 0.75;
+  opacity: 1;
 }
 
-.editor-wrapper .static-action-wrapper > button:hover {
-  opacity: 1;
+.editor-wrapper .static-action-wrapper > button.add-pop-editor:hover {
+  background-color: #4caf50;
+  color: #FFFFFF;
+}
+.editor-wrapper .static-action-wrapper > button.destroy-pop-editor:hover {
+  background-color: #fa0719;
+  color: #FFFFFF;
 }
 
 .editor-wrapper .static-action-wrapper > button:disabled {
   opacity: 0 !important;
   z-index: -1;
 }
-
+.editor-wrapper .static-action-wrapper > button:before {
+  position: absolute;
+  left: 5px;
+  font-size: 13px;
+}
 
 .editor-wrapper .static-action-wrapper > button > span {
   font-family: 'Raleway', sans-serif;
 }
 
 .editor-wrapper .static-action-wrapper .add-pop-editor {
-  background-color: #4caf50;
+  color: #4caf50;
+  border: 2px solid #4caf50;
   opacity: 0;
 }
 .editor-wrapper .static-action-wrapper .destroy-pop-editor {
-  background-color: #fa0719;
+  color: #fa0719;
+  border: 2px solid #fa0719;
+}
+.editor-wrapper .static-action-wrapper .destroy-pop-editor span {
+  padding-left: 5px;
 }
 
 .markdown-content-wrapper {

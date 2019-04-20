@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function(){
 
   const compose = window.ComposeIt
-
+  const clAction = document.getElementById('dbl-click-edit') 
+  
   const onChange = (html) => {
     console.log('on change')
     console.log(html)
@@ -11,12 +12,13 @@ document.addEventListener('DOMContentLoaded', function(){
   const onSave = (html) => {
     console.log('on save')
     console.log(html)
+    clAction.classList.remove('hide')
   }
 
   // Calls composer.destroy() after this method CB
   const onCancel = () => {
     console.log('on cancel')
-
+    clAction.classList.remove('hide')
   }
 
   const tools = [
@@ -78,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function(){
     // The element to attach the editor
     popOpts.element = popEditorEl
     // Default content for the editor
-    popOpts.content = 'compose...'
+    // popOpts.content = 'compose...'
     popOpts.overRideContent = true
     // Add the tools, with the link tool as text to get the registered default
     popOpts.tools = tools.concat([ 'link' ])
@@ -89,11 +91,18 @@ document.addEventListener('DOMContentLoaded', function(){
 
     popComp = compose.init(popOpts)
 
-    // Listener to toggle the editor on / off with double click
-    !hasDblClk && popEditorEl.addEventListener('dblclick', e => {
+    const dbClick = e => {
+      clAction.classList.add('hide')
       if (popComp.isActive) return null
       popComp = buildPopEditor()
-    })
+      console.log(popComp.toggleTools('on'));
+    }
+
+    // Listener to toggle the editor on / off with double click
+    !hasDblClk && popEditorEl.addEventListener('dblclick', dbClick)
+    // Listener to toggle the editor on / off with double click
+    !hasDblClk && clAction.addEventListener('dblclick', dbClick)
+    
     // Flag to ensure the event is only attached once
     hasDblClk = true
     return popComp

@@ -140,6 +140,8 @@ const createEditor = (settings, buttons, tools) => {
     }
 
     onClick = event => {
+      if(!settings || settings.destroy) return null
+
       logData('On Click Event')
       // Clear keyboard cache on every click event
       keyPCache = undefined
@@ -176,7 +178,7 @@ const createEditor = (settings, buttons, tools) => {
 
       // Clear keyboard cache when the selection changes
       keyPCache = undefined
-      if (settings.destroy || this.isActive === false) return null
+      if (!settings || settings.destroy || this.isActive === false) return null
 
       const { isStatic, showOnClick, onSelect, classes } = settings
       const selection = getSelection()
@@ -235,7 +237,7 @@ const createEditor = (settings, buttons, tools) => {
     */
     onContentChange = observer => {
       logData('On Content Change Event')
-      if (settings.destroy ||  settings.codeEditActive || this.isActive === false)
+      if (!settings || settings.destroy ||  settings.codeEditActive || this.isActive === false)
         return null
 
       const { defParaSep, onChange } = settings
@@ -267,7 +269,7 @@ const createEditor = (settings, buttons, tools) => {
     }
     
     onKeyUp = event => {
-      if(settings.destroy || checkCall(settings.onKeyUp, event, this) === false)
+      if(!settings || settings.destroy || checkCall(settings.onKeyUp, event, this) === false)
         return null
 
       if(keyPCache) keyPCache = undefined
@@ -281,8 +283,8 @@ const createEditor = (settings, buttons, tools) => {
     onKeyDown = event => {
       logData('On Keydown Event', event.key)
 
-
       if (
+        !settings ||
         settings.destroy ||
         this.isActive === false ||
         event.isComposing ||
@@ -350,6 +352,8 @@ const createEditor = (settings, buttons, tools) => {
     * @return { void }
     */
     updateToolsPos = (selection, selPos) => {
+      if(!settings || settings.destroy) return null
+
       const { isStatic, offset, onUpdateToolPos } = settings
       if (isStatic || !this.popper || !this.isActive) return null
 
@@ -375,9 +379,9 @@ const createEditor = (settings, buttons, tools) => {
     * @return { void }
     */
     toggleTools = toggle => {
-      const { isStatic, classes, onToggleTools } = settings
-      if (isStatic) return null
+      if(!settings || settings.destroy || settings.isStatic) return null
 
+      const { isStatic, classes, onToggleTools } = settings
       const popperTool = this.popper || {}
       const toolsRoot = popperTool.popper
       if (!toolsRoot) return null
