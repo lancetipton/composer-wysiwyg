@@ -10,7 +10,7 @@ A small (141kb) and customizable content editor. Check out the [demo](https://la
       git clone https://github.com/lancetipton/composeIt.git
       // Or Add to package.json
       "dependencies": {
-        "ComposeIt": "https://github.com/lancetipton/composeIt.git"
+        "ComposeIt": "git+https://github.com/lancetipton/composeIt.git"
         ...
       },
     ```

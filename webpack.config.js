@@ -11,6 +11,7 @@ const paths = [ './build' ]
 
 module.exports = {
   mode: ENV_MODE || 'development',
+  devtool: ENV_MODE === 'production' ? 'source-map' : 'inline-source-map',
   entry: {
     [libraryName]: './src/scripts/index.js',
     markdown: './src/example/markdown.js',
